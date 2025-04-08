@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Лист заданий по арифметике</title>
+  <title>Лист заданий по арифметике (с конфигом)</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
@@ -15,11 +15,22 @@
     .tab-content {
       margin-top: 20px;
     }
+    .config-upload {
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="container py-5">
     <h1 class="mb-4">Лист заданий по арифметике</h1>
+    
+    <!-- Блок загрузки конфигурации -->
+    <div class="config-upload">
+      <label for="configFileInput" class="form-label fw-bold">Загрузить конфигурацию заданий (JSON):</label>
+      <input type="file" class="form-control" id="configFileInput" accept=".json">
+      <div id="configStatus" class="mt-2"></div>
+    </div>
+    
     <!-- Навигационные вкладки -->
     <ul class="nav nav-tabs" id="taskTabs" role="tablist">
       <li class="nav-item" role="presentation">
@@ -33,227 +44,110 @@
         </button>
       </li>
     </ul>
+    
     <!-- Содержимое вкладок -->
     <div class="tab-content" id="taskTabsContent">
       <!-- Вкладка стандартных заданий -->
       <div class="tab-pane fade show active" id="standard" role="tabpanel" aria-labelledby="standard-tab">
         <form id="standardForm" class="mt-4">
-          <!-- Задание 1: Сложение -->
-          <div class="mb-3">
-            <label for="task1" class="form-label">
-              1. Первое слагаемое 5, второе слагаемое 12. Запиши сумму.
-            </label>
-            <input type="text" class="form-control" id="task1" data-answer="17" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание 2: Составление числа по разрядам -->
-          <div class="mb-3">
-            <label for="task2" class="form-label">
-              2. Запиши число, в котором 2 десятка и 3 единицы.
-            </label>
-            <input type="text" class="form-control" id="task2" data-answer="23" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание 3: Увеличение числа -->
-          <div class="mb-3">
-            <label for="task3" class="form-label">
-              3. Число 14 увеличь на 2.
-            </label>
-            <input type="text" class="form-control" id="task3" data-answer="16" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание 4: Вычитание -->
-          <div class="mb-3">
-            <label for="task4" class="form-label">
-              4. Уменьшаемое 18, вычитаемое 7. Запиши разность.
-            </label>
-            <input type="text" class="form-control" id="task4" data-answer="11" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание 5: Определение соседних чисел -->
-          <div class="mb-3">
-            <label for="task5" class="form-label">
-              5. Запиши соседей числа 21.
-            </label>
-            <input type="text" class="form-control" id="task5" data-answer="20,22" placeholder="Введите ответ через запятую">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание 6: Наименьшее двузначное число -->
-          <div class="mb-3">
-            <label for="task6" class="form-label">
-              6. Наименьшее двузначное число.
-            </label>
-            <input type="text" class="form-control" id="task6" data-answer="10" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание 7: Комбинированное задание -->
-          <div class="mb-3">
-            <label for="task7" class="form-label">
-              7. Разность двузначных чисел 15 и 9 прибавь 18.
-            </label>
-            <input type="text" class="form-control" id="task7" data-answer="24" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание 8: Нахождение недостающего слагаемого -->
-          <div class="mb-3">
-            <label for="task8" class="form-label">
-              8. Какое слагаемое нужно взять из 20, чтобы получить 15?
-            </label>
-            <input type="text" class="form-control" id="task8" data-answer="-5" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание 9: Работа со временем -->
-          <div class="mb-3">
-            <label for="task9" class="form-label">
-              9. Если игра начнётся через 30 секунд, а текущее время 12:03:20, во сколько стартует игра? (формат ЧЧ:ММ:СС)
-            </label>
-            <input type="text" class="form-control" id="task9" data-answer="12:03:50" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <button type="button" class="btn btn-primary" id="checkStandard">Проверить стандартные задания</button>
+          <!-- Задания будут сгенерированы динамически -->
         </form>
+        <button type="button" class="btn btn-primary mt-3" id="checkStandard">Проверить стандартные задания</button>
       </div>
+      
       <!-- Вкладка специальных заданий -->
       <div class="tab-pane fade" id="advanced" role="tabpanel" aria-labelledby="advanced-tab">
         <form id="advancedForm" class="mt-4">
-          <!-- Задание A1: Определение следующего числа -->
-          <div class="mb-3">
-            <label for="atask1" class="form-label">
-              1. Заполни пропуск: 27, ___, 29. Как называется число, которое идёт сразу после 27?
-            </label>
-            <input type="text" class="form-control" id="atask1" data-answer="28" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A2: Определение предыдущего числа -->
-          <div class="mb-3">
-            <label for="atask2" class="form-label">
-              2. Заполни пропуск: ___, 34, 35. Какое число находится непосредственно перед 34?
-            </label>
-            <input type="text" class="form-control" id="atask2" data-answer="33" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A3: Нахождение соседа в последовательности -->
-          <div class="mb-3">
-            <label for="atask3" class="form-label">
-              3. В последовательности: 19, ___, 21 – какое число должно стоять между 19 и 21?
-            </label>
-            <input type="text" class="form-control" id="atask3" data-answer="20" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A4: Определение разрядности чисел -->
-          <div class="mb-3">
-            <label for="atask4" class="form-label">
-              4. Запиши три числа: одно однозначное, другое двузначное и третье трёхзначное. Укажи, какое из них соответствует каждому описанию.
-            </label>
-            <input type="text" class="form-control" id="atask4" data-answer="7,45,123" placeholder="Введите ответы через запятую">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A5: Арифметическая операция сложения -->
-          <div class="mb-3">
-            <label for="atask5" class="form-label">
-              5. Выполни: 22 + 17 = ?
-            </label>
-            <input type="text" class="form-control" id="atask5" data-answer="39" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A6: Заполнение пропусков в ряду -->
-          <div class="mb-3">
-            <label for="atask6" class="form-label">
-              6. Последовательность: 7, ___, 9, ___, 11. Какое число идёт после 7, если прибавляем 1?
-            </label>
-            <input type="text" class="form-control" id="atask6" data-answer="8,10" placeholder="Введите ответы через запятую">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A7: Сравнение чисел -->
-          <div class="mb-3">
-            <label for="atask7" class="form-label">
-              7. Даны числа: 14, 8, 19. Какое из них наименьшее, а какое – наибольшее?
-            </label>
-            <input type="text" class="form-control" id="atask7" data-answer="8,19" placeholder="Введите два числа через запятую">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A8: Ситуационная задача с тетрадями -->
-          <div class="mb-3">
-            <label for="atask8" class="form-label">
-              8. Купили 6 тетрадей в клетку, а в линейку – на 1 больше. Сколько тетрадей купили всего?
-            </label>
-            <input type="text" class="form-control" id="atask8" data-answer="13" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A9: Выбор правильного арифметического знака -->
-          <div class="mb-3">
-            <label for="atask9" class="form-label">
-              9. 10 __ 4 = 14. Какой знак (+ или –) нужно поставить, чтобы равенство было верным?
-            </label>
-            <input type="text" class="form-control" id="atask9" data-answer="+" placeholder="Введите знак">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A10: Определение чётности числа -->
-          <div class="mb-3">
-            <label for="atask10" class="form-label">
-              10. Определи, какое из чисел 13, 16, 21 является чётным. Какой признак позволяет отнести число к чётным?
-            </label>
-            <input type="text" class="form-control" id="atask10" data-answer="16" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A11: Счёт шагами -->
-          <div class="mb-3">
-            <label for="atask11" class="form-label">
-              11. Заполни пропуски: 4, ___, 12, ___, 20, если каждое число увеличивается на 4.
-            </label>
-            <input type="text" class="form-control" id="atask11" data-answer="8,16" placeholder="Введите два числа через запятую">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A12: Ментальный приём сложения -->
-          <div class="mb-3">
-            <label for="atask12" class="form-label">
-              12. Как быстро вычислить сумму 9 + 8, если сначала довести 9 до 10? Опиши свой алгоритм кратко.
-            </label>
-            <input type="text" class="form-control" id="atask12" data-answer="1+8" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A13: Работа со временем (альтернативный вариант) -->
-          <div class="mb-3">
-            <label for="atask13" class="form-label">
-              13. Если запуск игры назначен на 15:20:00, а текущее время 15:19:30, сколько секунд осталось до начала?
-            </label>
-            <input type="text" class="form-control" id="atask13" data-answer="30" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A14: Нахождение лишнего числа -->
-          <div class="mb-3">
-            <label for="atask14" class="form-label">
-              14. В последовательности: 5, 10, 15, 17, 20 одно число выбивается. Найди лишнее и обоснуй свой выбор.
-            </label>
-            <input type="text" class="form-control" id="atask14" data-answer="17" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A15: Сравнение фигур по количеству сторон -->
-          <div class="mb-3">
-            <label for="atask15" class="form-label">
-              15. Сравни фигуры: треугольник (3 стороны) и прямоугольник (4 стороны). Заполни пробел знаком сравнения, чтобы указать, у какой фигуры больше сторон.
-            </label>
-            <input type="text" class="form-control" id="atask15" data-answer="3<4" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <!-- Задание A16: Задача «Больше, чем на…» -->
-          <div class="mb-3">
-            <label for="atask16" class="form-label">
-              16. У Саши на 2 предмета больше, чем у Иры. Если у Иры 7 предметов, сколько предметов у Саши? Запиши ситуацию в виде арифметического выражения.
-            </label>
-            <input type="text" class="form-control" id="atask16" data-answer="7+2" placeholder="Введите ответ">
-            <div class="invalid-feedback">Неправильный ответ</div>
-          </div>
-          <button type="button" class="btn btn-primary" id="checkAdvanced">Проверить специальные задания</button>
+          <!-- Задания будут сгенерированы динамически -->
         </form>
+        <button type="button" class="btn btn-primary mt-3" id="checkAdvanced">Проверить специальные задания</button>
       </div>
     </div>
   </div>
 
-  <!-- Bootstrap JS -->
+  <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
   <script>
-    // Функция проверки ответов для формы с заданным id
+    // Массивы для задач из конфига
+    let standardTasks = [];
+    let advancedTasks = [];
+
+    // Функция для перемешивания массива (shuffle)
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+    
+    // Функция генерации HTML-заданий по массиву задач в config
+    function generateTasks(formId, tasksArray) {
+      let form = document.getElementById(formId);
+      form.innerHTML = ""; // очистка формы
+      tasksArray.forEach((task, index) => {
+        // Создаем блок задания
+        let div = document.createElement('div');
+        div.className = "mb-3";
+        // Формируем текст задания, добавляя порядковый номер
+        let label = document.createElement('label');
+        label.className = "form-label";
+        label.htmlFor = task.id || (formId + "_task" + index);
+        label.textContent = (index+1) + ". " + task.text;
+        // Создаем поле ввода
+        let input = document.createElement('input');
+        input.type = "text";
+        input.className = "form-control";
+        input.id = task.id || (formId + "_task" + index);
+        input.setAttribute('data-answer', task.dataAnswer);
+        input.placeholder = task.placeholder || "Введите ответ";
+        // Добавляем блок для сообщений
+        let feedback = document.createElement('div');
+        feedback.className = "invalid-feedback";
+        feedback.textContent = "Неправильный ответ";
+        // Добавляем элементы в блок div
+        div.appendChild(label);
+        div.appendChild(input);
+        div.appendChild(feedback);
+        // Добавляем задание в форму
+        form.appendChild(div);
+      });
+      // Добавляем динамическую проверку для нового набора
+      addDynamicValidation();
+    }
+    
+    // Функция добавления динамической проверки при вводе для всех полей с data-answer
+    function addDynamicValidation() {
+      document.querySelectorAll('input[data-answer]').forEach(input => {
+        input.addEventListener('input', function(){
+          let userAnswer = this.value.trim();
+          let correctAnswer = this.getAttribute('data-answer').trim();
+          // Если несколько ответов через запятую
+          if(correctAnswer.includes(',')) {
+            let correctArr = correctAnswer.split(',').map(item => item.trim());
+            let userArr = userAnswer.split(',').map(item => item.trim());
+            if(correctArr.length === userArr.length && correctArr.every((ans, i) => ans === userArr[i])) {
+              this.classList.remove('is-invalid');
+              this.classList.add('is-valid');
+            } else {
+              this.classList.remove('is-valid');
+              this.classList.add('is-invalid');
+            }
+          } else {
+            if(userAnswer === correctAnswer) {
+              this.classList.remove('is-invalid');
+              this.classList.add('is-valid');
+            } else {
+              this.classList.remove('is-valid');
+              this.classList.add('is-invalid');
+            }
+          }
+        });
+      });
+    }
+    
+    // Функция проверки ответов в форме по заданному id
     function checkAnswers(formId) {
       let form = document.getElementById(formId);
       let inputs = form.querySelectorAll('input[data-answer]');
@@ -261,7 +155,6 @@
       inputs.forEach(input => {
         let userAnswer = input.value.trim();
         let correctAnswer = input.getAttribute('data-answer').trim();
-        // Для случаев с несколькими ответами через запятую сравниваем массивы
         if(correctAnswer.includes(',')) {
           let correctArr = correctAnswer.split(',').map(item => item.trim());
           let userArr = userAnswer.split(',').map(item => item.trim());
@@ -284,7 +177,34 @@
       });
       return allCorrect;
     }
-
+    
+    // Обработчик события загрузки конфигурационного файла
+    document.getElementById('configFileInput').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const config = JSON.parse(e.target.result);
+          // Ожидается, что конфиг имеет свойства: standard, advanced – массивы задач
+          if (!config.standard || !config.advanced) {
+            document.getElementById('configStatus').textContent = "Неверный формат конфигурации.";
+            return;
+          }
+          // Перемешиваем задачи
+          standardTasks = shuffle(config.standard);
+          advancedTasks = shuffle(config.advanced);
+          // Генерируем задачи для обеих вкладок
+          generateTasks('standardForm', standardTasks);
+          generateTasks('advancedForm', advancedTasks);
+          document.getElementById('configStatus').textContent = "Конфигурация успешно загружена.";
+        } catch (err) {
+          document.getElementById('configStatus').textContent = "Ошибка парсинга конфигурации: " + err.message;
+        }
+      };
+      reader.readAsText(file);
+    });
+    
     // Проверка стандартных заданий
     document.getElementById('checkStandard').addEventListener('click', function(){
       if(checkAnswers('standardForm')){
@@ -298,7 +218,7 @@
         alert("В стандартных заданиях есть ошибки. Проверьте свои ответы.");
       }
     });
-
+    
     // Проверка специальных заданий
     document.getElementById('checkAdvanced').addEventListener('click', function(){
       if(checkAnswers('advancedForm')){
@@ -306,33 +226,6 @@
       } else {
         alert("В специальных заданиях есть ошибки. Проверьте свои ответы.");
       }
-    });
-
-    // Добавление динамической проверки при вводе для всех полей
-    document.querySelectorAll('input[data-answer]').forEach(input => {
-      input.addEventListener('input', function(){
-        let userAnswer = this.value.trim();
-        let correctAnswer = this.getAttribute('data-answer').trim();
-        if(correctAnswer.includes(',')) {
-          let correctArr = correctAnswer.split(',').map(item => item.trim());
-          let userArr = userAnswer.split(',').map(item => item.trim());
-          if(correctArr.length === userArr.length && correctArr.every((ans, i) => ans === userArr[i])) {
-            this.classList.remove('is-invalid');
-            this.classList.add('is-valid');
-          } else {
-            this.classList.remove('is-valid');
-            this.classList.add('is-invalid');
-          }
-        } else {
-          if(userAnswer === correctAnswer) {
-            this.classList.remove('is-invalid');
-            this.classList.add('is-valid');
-          } else {
-            this.classList.remove('is-valid');
-            this.classList.add('is-invalid');
-          }
-        }
-      });
     });
   </script>
 </body>
