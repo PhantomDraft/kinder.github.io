@@ -6,62 +6,75 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    .is-invalid {
-      border-color: #dc3545 !important;
-    }
-    .is-valid {
-      border-color: #198754 !important;
-    }
-    .tab-content {
-      margin-top: 20px;
-    }
-    .config-upload {
-      margin-bottom: 20px;
-    }
+    .is-invalid { border-color: #dc3545 !important; }
+    .is-valid   { border-color: #198754 !important; }
+    .tab-content { margin-top: 20px; }
+    .config-upload { margin-bottom: 20px; }
   </style>
 </head>
 <body>
   <div class="container py-5">
     <h1 class="mb-4">Лист заданий по арифметике, первый класс</h1>
-    <p><a href="https://github.com/PhantomDraft/kinder.github.io/wiki/Script-for-Generating-a-Configuration-File-for-Grade-1-Math-Worksheets">Инструкция генерация конфига</a></p>
+    <p>
+      <a href="https://github.com/PhantomDraft/kinder.github.io/wiki/Script-for-Generating-a-Configuration-File-for-Grade-1-Math-Worksheets">
+        Инструкция генерация конфига
+      </a>
+    </p>
 
-    <!-- Блок загрузки конфигурации -->
-    <div class="config-upload">
-      <label for="configFileInput" class="form-label fw-bold">Загрузить конфигурацию заданий (JSON):</label>
-      <input type="file" class="form-control" id="configFileInput" accept=".json">
-      <div id="configStatus" class="mt-2"></div>
+    <!-- Config load / default button -->
+    <div class="d-flex align-items-end mb-3">
+      <div class="config-upload flex-grow-1">
+        <label for="configFileInput" class="form-label fw-bold">
+          Загрузить конфигурацию заданий (JSON):
+        </label>
+        <input type="file" class="form-control" id="configFileInput" accept=".json">
+        <div id="configStatus" class="mt-2"></div>
+      </div>
+      <button id="loadDefault" class="btn btn-secondary ms-3">Default Config</button>
     </div>
 
-    <!-- Навигационные вкладки -->
+    <!-- Navigation tabs -->
     <ul class="nav nav-tabs" id="taskTabs" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="standard-tab" data-bs-toggle="tab" data-bs-target="#standard" type="button" role="tab" aria-controls="standard" aria-selected="true">
+        <button class="nav-link active"
+                id="standard-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#standard"
+                type="button"
+                role="tab"
+                aria-controls="standard"
+                aria-selected="true">
           Стандартные задания
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button" role="tab" aria-controls="advanced" aria-selected="false" disabled>
+        <button class="nav-link"
+                id="advanced-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#advanced"
+                type="button"
+                role="tab"
+                aria-controls="advanced"
+                aria-selected="false"
+                disabled>
           Специальные задания
         </button>
       </li>
     </ul>
 
-    <!-- Содержимое вкладок -->
+    <!-- Tab contents -->
     <div class="tab-content" id="taskTabsContent">
-      <!-- Вкладка стандартных заданий -->
       <div class="tab-pane fade show active" id="standard" role="tabpanel" aria-labelledby="standard-tab">
-        <form id="standardForm" class="mt-4">
-          <!-- Задания будут сгенерированы динамически -->
-        </form>
-        <button type="button" class="btn btn-primary mt-3" id="checkStandard">Проверить стандартные задания</button>
+        <form id="standardForm" class="mt-4"></form>
+        <button type="button" class="btn btn-primary mt-3" id="checkStandard">
+          Проверить стандартные задания
+        </button>
       </div>
-
-      <!-- Вкладка специальных заданий -->
       <div class="tab-pane fade" id="advanced" role="tabpanel" aria-labelledby="advanced-tab">
-        <form id="advancedForm" class="mt-4">
-          <!-- Задания будут сгенерированы динамически -->
-        </form>
-        <button type="button" class="btn btn-primary mt-3" id="checkAdvanced">Проверить специальные задания</button>
+        <form id="advancedForm" class="mt-4"></form>
+        <button type="button" class="btn btn-primary mt-3" id="checkAdvanced">
+          Проверить специальные задания
+        </button>
       </div>
     </div>
   </div>
@@ -70,250 +83,278 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Arrays to hold tasks from the loaded configuration
-    let standardTasks = [];
-    let advancedTasks = [];
+    // Default configuration object
+    const defaultConfig = {
+      "instructions": "Создать два листа самостоятельной работы для первоклассников по арифметической терминологии. В каждом листе задания перемешаны в случайном порядке. Числовые значения и условия уникализированы для каждого варианта. Формулировки адаптированы для самостоятельного выполнения без подсказок.",
+      "standard": [
+        {"text":"Первое слагаемое 4, второе слагаемое 7. Запиши сумму.","dataAnswer":"11"},
+        {"text":"Запиши число, в котором 3 десятка и 5 единиц.","dataAnswer":"35"},
+        {"text":"Число 6 увеличь на 4.","dataAnswer":"10"},
+        {"text":"Уменьшаемое 9, вычитаемое 3. Запиши разность.","dataAnswer":"6"},
+        {"text":"Запиши соседей числа 14.","dataAnswer":"13, 15"},
+        {"text":"Наименьшее двузначное число.","dataAnswer":"10"},
+        {"text":"К разности чисел 23 и 8 прибавь 6.","dataAnswer":"21"},
+        {"text":"Какое слагаемое нужно взять из 8, чтобы получить 13?","dataAnswer":"5"},
+        {"text":"Если игра начнётся через 45 секунд, а текущее время 12:00:15, во сколько стартует игра?","dataAnswer":"12:01:00"}
+      ],
+      "advanced": [
+        {"text":"Заполни пропуск: 9, ___, 11. Как называется число, которое идёт сразу после 9?","dataAnswer":"10"},
+        {"text":"Заполни пропуск: ___, 7, 8. Какое число находится непосредственно перед 7?","dataAnswer":"6"},
+        {"text":"В последовательности: 20, ___, 22 – какое число должно стоять между 20 и 22?","dataAnswer":"21"},
+        {"text":"Запиши три числа: одно однозначное, другое двузначное и третье трёхзначное. Какому числу соответствует каждое описание?","dataAnswer":"однозначное – 5; двузначное – 34; трёхзначное – 128"},
+        {"text":"Выполни: 3 + 6 = ?","dataAnswer":"9"},
+        {"text":"Последовательность: 2, ___, 8, ___, 14. Какое число идёт после 2 при прибавлении 3?","dataAnswer":"5"},
+        {"text":"Даны числа: 4, 9, 1. Какое из них наименьшее, а какое – наибольшее?","dataAnswer":"наименьшее – 1; наибольшее – 9"},
+        {"text":"Купили 7 тетрадей в клетку, а в линейку – на 1 больше. Сколько тетрадей купили всего?","dataAnswer":"15"},
+        {"text":"5 __ 3 = 2. Какой знак (+ или –) нужно поставить, чтобы равенство было верным?","dataAnswer":"-"},
+        {"text":"Определи, какое из чисел 7, 4, 9 является чётным. Какой признак позволяет отнести число к чётным?","dataAnswer":"4; оно делится на 2 без остатка"},
+        {"text":"Заполни пропуски: 1, ___, 5, ___, 9, если каждое число увеличивается на 2.","dataAnswer":"3, 7"},
+        {"text":"Как быстро вычислить сумму 9 + 6, если сначала довести 9 до круглого числа? Опиши свой алгоритм.","dataAnswer":"9 + 1 = 10, затем +5 = 15"},
+        {"text":"Если запуск игры назначен на 14:20:00, а текущее время 14:15:30, сколько секунд осталось до начала?","dataAnswer":"270"},
+        {"text":"В последовательности: 2, 4, 6, 7, 8 одно число выбивается. Найди лишнее и обоснуй свой выбор.","dataAnswer":"7; потому что остальные чётные, а 7 нечётное"},
+        {"text":"Сравни фигуры: треугольник (3 стороны) __ прямоугольник (4 стороны). Заполни пробел знаком сравнения, чтобы указать, у какой фигуры больше сторон.","dataAnswer":"<"},
+        {"text":"У Кати на 3 предмета больше, чем у Васи. Если у Васи всего 4 предмета, сколько предметов у Кати? Как записать эту ситуацию в виде арифметического выражения?","dataAnswer":"7; 4 + 3 = 7"}
+      ]
+    };
 
     /**
-     * Function to shuffle an array using the Fisher–Yates algorithm
-     * @param {Array} array
-     * @returns {Array}
+     * Utility class for shuffling arrays
      */
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    class Utils {
+      /** Fisher–Yates shuffle */
+      static shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
       }
-      return array;
     }
 
     /**
-     * Keep only digits and insert ":" after every two digits up to HH:MM:SS
-     * @param {string} value
-     * @returns {string}
+     * Base class for input masks
      */
-    function formatTimeInput(value) {
-      // Remove all non-digit characters, limit to 6 digits
-      const digits = value.replace(/\D/g, '').slice(0, 6);
-      let parts = [];
-      if (digits.length >= 2) {
-        parts.push(digits.substring(0, 2));
-        if (digits.length >= 4) {
-          parts.push(digits.substring(2, 4));
-          if (digits.length > 4) {
-            parts.push(digits.substring(4));
+    class InputMask {
+      constructor(input) {
+        this.input = input;
+      }
+      attach() {}
+    }
+
+    /**
+     * Time mask: formats as HH:MM:SS
+     */
+    class TimeMask extends InputMask {
+      attach() {
+        this.input.addEventListener('input', () => {
+          const pos = this.input.selectionStart;
+          const oldLen = this.input.value.length;
+          this.input.value = this.format(this.input.value);
+          const newLen = this.input.value.length;
+          this.input.selectionStart = this.input.selectionEnd = pos + (newLen - oldLen);
+        });
+      }
+      format(value) {
+        const digits = value.replace(/\D/g, '').slice(0, 6);
+        const parts = [];
+        if (digits.length >= 2) {
+          parts.push(digits.slice(0,2));
+          if (digits.length >= 4) {
+            parts.push(digits.slice(2,4));
+            if (digits.length > 4) parts.push(digits.slice(4));
+          } else {
+            parts.push(digits.slice(2));
           }
         } else {
-          parts.push(digits.substring(2));
+          parts.push(digits);
         }
-      } else {
-        parts.push(digits);
+        return parts.join(':');
       }
-      // Join parts with colon
-      return parts.join(':');
     }
 
     /**
-     * Attach an input listener to format the field as HH:MM:SS
-     * @param {HTMLInputElement} input
+     * Comma mask: splits numeric entries by comma+space
      */
-    function attachTimeMask(input) {
-      input.addEventListener('input', function() {
-        // Remember cursor position
-        const cursorPos = this.selectionStart;
-        const oldLen = this.value.length;
-        // Reformat the value
-        this.value = formatTimeInput(this.value);
-        // Adjust cursor to account for inserted/removed colons
-        const newLen = this.value.length;
-        this.selectionStart = this.selectionEnd = cursorPos + (newLen - oldLen);
-      });
+    class CommaMask extends InputMask {
+      attach() {
+        this.input.addEventListener('input', () => {
+          const pos = this.input.selectionStart;
+          const oldLen = this.input.value.length;
+          this.input.value = this.format(this.input.value);
+          const newLen = this.input.value.length;
+          this.input.selectionStart = this.input.selectionEnd = pos + (newLen - oldLen);
+        });
+      }
+      format(value) {
+        const parts = value.split(/\D+/).filter(v => v);
+        return parts.join(', ');
+      }
     }
 
     /**
-     * Function to generate HTML tasks based on the tasks array from config
-     * @param {string} formId - ID of the form container
-     * @param {Array} tasksArray - Array of task objects
+     * Represents a single worksheet form (standard or advanced)
      */
-    function generateTasks(formId, tasksArray) {
-      const form = document.getElementById(formId);
-      form.innerHTML = ''; // Clear the form
-      tasksArray.forEach((task, index) => {
-        // Create task container
-        const div = document.createElement('div');
-        div.className = 'mb-3';
+    class Worksheet {
+      /**
+       * @param {string} formId      - ID of <form>
+       * @param {string} checkBtnId  - ID of check button
+       * @param {Function} onSuccess - callback on all-correct
+       */
+      constructor(formId, checkBtnId, onSuccess = null) {
+        this.formEl = document.getElementById(formId);
+        this.checkBtn = document.getElementById(checkBtnId);
+        this.onSuccess = onSuccess;
+        this.tasks = [];
+        this._initCheck();
+      }
 
-        // Create label with task text and order number
-        const label = document.createElement('label');
-        label.className = 'form-label';
-        label.htmlFor = task.id || `${formId}_task${index}`;
-        label.textContent = `${index + 1}. ${task.text}`;
+      /** Generate and render tasks */
+      load(tasks) {
+        this.tasks = tasks;
+        this._render();
+      }
 
-        // Create input field
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'form-control';
-        input.id = task.id || `${formId}_task${index}`;
-        input.setAttribute('data-answer', task.dataAnswer);
-        input.placeholder = task.placeholder || 'Enter answer here';
+      /** Render tasks into the form */
+      _render() {
+        this.formEl.innerHTML = '';
+        this.tasks.forEach((task, i) => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'mb-3';
 
-        // If the correct answer contains a colon, treat this as a time field
-        if (task.dataAnswer.includes(':')) {
-          attachTimeMask(input);
+          const label = document.createElement('label');
+          label.className = 'form-label';
+          label.htmlFor = `${this.formEl.id}_task${i}`;
+          label.textContent = `${i+1}. ${task.text}`;
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'form-control';
+          input.id = `${this.formEl.id}_task${i}`;
+          input.setAttribute('data-answer', task.dataAnswer);
+          input.placeholder = 'Enter answer here';
+
+          // Attach masks if needed
+          if (task.dataAnswer.includes(':')) {
+            new TimeMask(input).attach();
+          } else if (task.dataAnswer.includes(',')) {
+            new CommaMask(input).attach();
+          }
+
+          // Live validation
+          input.addEventListener('input', () => this._validateInput(input));
+
+          const feedback = document.createElement('div');
+          feedback.className = 'invalid-feedback';
+          feedback.textContent = 'Incorrect answer';
+
+          wrapper.append(label, input, feedback);
+          this.formEl.appendChild(wrapper);
+        });
+      }
+
+      /** Validate a single input field */
+      _validateInput(input) {
+        const user = input.value.trim();
+        const correct = input.getAttribute('data-answer').trim();
+        let ok = false;
+        if (correct.includes(',')) {
+          const ca = correct.split(',').map(v=>v.trim());
+          const ua = user.split(',').map(v=>v.trim());
+          ok = ca.length === ua.length && ca.every((v,i)=>v===ua[i]);
+        } else {
+          ok = user === correct;
         }
+        input.classList.toggle('is-valid', ok);
+        input.classList.toggle('is-invalid', !ok);
+        return ok;
+      }
 
-        // Create feedback element for invalid input
-        const feedback = document.createElement('div');
-        feedback.className = 'invalid-feedback';
-        feedback.textContent = 'Incorrect answer';
+      /** Check all inputs; return true if all correct */
+      _checkAll() {
+        const inputs = Array.from(this.formEl.querySelectorAll('input[data-answer]'));
+        const results = inputs.map(input => this._validateInput(input));
+        return results.every(Boolean);
+      }
 
-        // Assemble and append to the form
-        div.appendChild(label);
-        div.appendChild(input);
-        div.appendChild(feedback);
-        form.appendChild(div);
-      });
-
-      // Re-attach live validation handlers after generating new tasks
-      addDynamicValidation();
-    }
-
-    /**
-     * Function to add live validation on all inputs with data-answer attribute
-     */
-    function addDynamicValidation() {
-      document.querySelectorAll('input[data-answer]').forEach(input => {
-        input.addEventListener('input', function() {
-          const userAnswer = this.value.trim();
-          const correctAnswer = this.getAttribute('data-answer').trim();
-
-          if (correctAnswer.includes(',')) {
-            // Handle comma-separated multiple answers
-            const correctArr = correctAnswer.split(',').map(item => item.trim());
-            const userArr = userAnswer.split(',').map(item => item.trim());
-            if (
-              correctArr.length === userArr.length &&
-              correctArr.every((ans, i) => ans === userArr[i])
-            ) {
-              this.classList.remove('is-invalid');
-              this.classList.add('is-valid');
-            } else {
-              this.classList.remove('is-valid');
-              this.classList.add('is-invalid');
-            }
+      /** Initialize check button behavior */
+      _initCheck() {
+        this.checkBtn.addEventListener('click', () => {
+          if (this._checkAll()) {
+            alert('Все задания выполнены верно!');
+            if (this.onSuccess) this.onSuccess();
           } else {
-            // Single answer check
-            if (userAnswer === correctAnswer) {
-              this.classList.remove('is-invalid');
-              this.classList.add('is-valid');
-            } else {
-              this.classList.remove('is-valid');
-              this.classList.add('is-invalid');
-            }
+            alert('Есть ошибки. Проверьте ответы.');
           }
         });
-      });
+      }
     }
 
     /**
-     * Function to check all answers in a given form
-     * @param {string} formId - ID of the form
-     * @returns {boolean} True if all answers are correct, false otherwise
+     * Main application controller
      */
-    function checkAnswers(formId) {
-      const form = document.getElementById(formId);
-      const inputs = form.querySelectorAll('input[data-answer]');
-      let allCorrect = true;
+    class App {
+      constructor() {
+        this.standardSheet = new Worksheet(
+          'standardForm',
+          'checkStandard',
+          () => this._unlockAdvanced()
+        );
+        this.advancedSheet = new Worksheet('advancedForm', 'checkAdvanced');
+        this._bindConfigHandlers();
+      }
 
-      inputs.forEach(input => {
-        const userAnswer = input.value.trim();
-        const correctAnswer = input.getAttribute('data-answer').trim();
-        let isCorrect = false;
+      /** Bind file input and default button */
+      _bindConfigHandlers() {
+        const fileInput = document.getElementById('configFileInput');
+        const defaultBtn = document.getElementById('loadDefault');
+        const statusEl  = document.getElementById('configStatus');
 
-        if (correctAnswer.includes(',')) {
-          const correctArr = correctAnswer.split(',').map(item => item.trim());
-          const userArr = userAnswer.split(',').map(item => item.trim());
-          isCorrect =
-            correctArr.length === userArr.length &&
-            correctArr.every((ans, i) => ans === userArr[i]);
-        } else {
-          isCorrect = userAnswer === correctAnswer;
-        }
+        fileInput.addEventListener('change', e => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = evt => {
+            try {
+              const cfg = JSON.parse(evt.target.result);
+              if (!cfg.standard || !cfg.advanced) {
+                statusEl.textContent = 'Invalid configuration format.';
+                return;
+              }
+              this._loadConfig(cfg);
+              statusEl.textContent = 'Конфигурация загружена.';
+            } catch (err) {
+              statusEl.textContent = 'Error parsing JSON: ' + err.message;
+            }
+          };
+          reader.readAsText(file);
+        });
 
-        if (isCorrect) {
-          input.classList.remove('is-invalid');
-          input.classList.add('is-valid');
-        } else {
-          input.classList.remove('is-valid');
-          input.classList.add('is-invalid');
-          allCorrect = false;
-        }
-      });
+        defaultBtn.addEventListener('click', () => {
+          this._loadConfig(defaultConfig);
+          statusEl.textContent = 'Default configuration loaded.';
+        });
+      }
 
-      return allCorrect;
+      /** Shuffle and dispatch config to worksheets */
+      _loadConfig(cfg) {
+        const std = Utils.shuffle(cfg.standard.slice());
+        const adv = Utils.shuffle(cfg.advanced.slice());
+        this.standardSheet.load(std);
+        this.advancedSheet.load(adv);
+      }
+
+      /** Enable and show advanced tab */
+      _unlockAdvanced() {
+        const advTabBtn = document.getElementById('advanced-tab');
+        advTabBtn.removeAttribute('disabled');
+        new bootstrap.Tab(advTabBtn).show();
+      }
     }
 
-    // Event listener for loading the configuration JSON file
-    document
-      .getElementById('configFileInput')
-      .addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          try {
-            const config = JSON.parse(e.target.result);
-            // Expect config.standard and config.advanced arrays
-            if (!config.standard || !config.advanced) {
-              document.getElementById('configStatus').textContent =
-                'Invalid configuration format.';
-              return;
-            }
-            // Shuffle tasks
-            standardTasks = shuffle(config.standard);
-            advancedTasks = shuffle(config.advanced);
-            // Generate tasks for both tabs
-            generateTasks('standardForm', standardTasks);
-            generateTasks('advancedForm', advancedTasks);
-            document.getElementById('configStatus').textContent =
-              'Configuration loaded successfully.';
-          } catch (err) {
-            document.getElementById('configStatus').textContent =
-              'Error parsing configuration: ' + err.message;
-          }
-        };
-        reader.readAsText(file);
-      });
-
-    // Event listener for checking standard tasks
-    document
-      .getElementById('checkStandard')
-      .addEventListener('click', function() {
-        if (checkAnswers('standardForm')) {
-          alert('All standard tasks are correct!');
-          // Enable advanced tasks tab
-          document.getElementById('advanced-tab').removeAttribute('disabled');
-          // Switch to advanced tasks tab
-          const advancedTab = new bootstrap.Tab(
-            document.getElementById('advanced-tab')
-          );
-          advancedTab.show();
-        } else {
-          alert('Some answers in standard tasks are incorrect. Please review.');
-        }
-      });
-
-    // Event listener for checking advanced tasks
-    document
-      .getElementById('checkAdvanced')
-      .addEventListener('click', function() {
-        if (checkAnswers('advancedForm')) {
-          alert('All advanced tasks are correct!');
-        } else {
-          alert('Some answers in advanced tasks are incorrect. Please review.');
-        }
-      });
+    // Initialize the app on DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+      new App();
+    });
   </script>
 </body>
 </html>
