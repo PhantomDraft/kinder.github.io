@@ -70,65 +70,131 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Массивы для задач из конфига
+    // Arrays to hold tasks from the loaded configuration
     let standardTasks = [];
     let advancedTasks = [];
 
-    // Функция для перемешивания массива (shuffle)
+    /**
+     * Function to shuffle an array using the Fisher–Yates algorithm
+     * @param {Array} array
+     * @returns {Array}
+     */
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]];
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
       }
       return array;
     }
 
-    // Функция генерации HTML-заданий по массиву задач в config
+    /**
+     * Keep only digits and insert ":" after every two digits up to HH:MM:SS
+     * @param {string} value
+     * @returns {string}
+     */
+    function formatTimeInput(value) {
+      // Remove all non-digit characters, limit to 6 digits
+      const digits = value.replace(/\D/g, '').slice(0, 6);
+      let parts = [];
+      if (digits.length >= 2) {
+        parts.push(digits.substring(0, 2));
+        if (digits.length >= 4) {
+          parts.push(digits.substring(2, 4));
+          if (digits.length > 4) {
+            parts.push(digits.substring(4));
+          }
+        } else {
+          parts.push(digits.substring(2));
+        }
+      } else {
+        parts.push(digits);
+      }
+      // Join parts with colon
+      return parts.join(':');
+    }
+
+    /**
+     * Attach an input listener to format the field as HH:MM:SS
+     * @param {HTMLInputElement} input
+     */
+    function attachTimeMask(input) {
+      input.addEventListener('input', function() {
+        // Remember cursor position
+        const cursorPos = this.selectionStart;
+        const oldLen = this.value.length;
+        // Reformat the value
+        this.value = formatTimeInput(this.value);
+        // Adjust cursor to account for inserted/removed colons
+        const newLen = this.value.length;
+        this.selectionStart = this.selectionEnd = cursorPos + (newLen - oldLen);
+      });
+    }
+
+    /**
+     * Function to generate HTML tasks based on the tasks array from config
+     * @param {string} formId - ID of the form container
+     * @param {Array} tasksArray - Array of task objects
+     */
     function generateTasks(formId, tasksArray) {
-      let form = document.getElementById(formId);
-      form.innerHTML = ""; // очистка формы
+      const form = document.getElementById(formId);
+      form.innerHTML = ''; // Clear the form
       tasksArray.forEach((task, index) => {
-        // Создаем блок задания
-        let div = document.createElement('div');
-        div.className = "mb-3";
-        // Формируем текст задания, добавляя порядковый номер
-        let label = document.createElement('label');
-        label.className = "form-label";
-        label.htmlFor = task.id || (formId + "_task" + index);
-        label.textContent = (index+1) + ". " + task.text;
-        // Создаем поле ввода
-        let input = document.createElement('input');
-        input.type = "text";
-        input.className = "form-control";
-        input.id = task.id || (formId + "_task" + index);
+        // Create task container
+        const div = document.createElement('div');
+        div.className = 'mb-3';
+
+        // Create label with task text and order number
+        const label = document.createElement('label');
+        label.className = 'form-label';
+        label.htmlFor = task.id || `${formId}_task${index}`;
+        label.textContent = `${index + 1}. ${task.text}`;
+
+        // Create input field
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control';
+        input.id = task.id || `${formId}_task${index}`;
         input.setAttribute('data-answer', task.dataAnswer);
-        input.placeholder = task.placeholder || "Введите ответ";
-        // Добавляем блок для сообщений
-        let feedback = document.createElement('div');
-        feedback.className = "invalid-feedback";
-        feedback.textContent = "Неправильный ответ";
-        // Добавляем элементы в блок div
+        input.placeholder = task.placeholder || 'Enter answer here';
+
+        // If the correct answer contains a colon, treat this as a time field
+        if (task.dataAnswer.includes(':')) {
+          attachTimeMask(input);
+        }
+
+        // Create feedback element for invalid input
+        const feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
+        feedback.textContent = 'Incorrect answer';
+
+        // Assemble and append to the form
         div.appendChild(label);
         div.appendChild(input);
         div.appendChild(feedback);
-        // Добавляем задание в форму
         form.appendChild(div);
       });
-      // Добавляем динамическую проверку для нового набора
+
+      // Re-attach live validation handlers after generating new tasks
       addDynamicValidation();
     }
 
-    // Функция добавления динамической проверки при вводе для всех полей с data-answer
+    /**
+     * Function to add live validation on all inputs with data-answer attribute
+     */
     function addDynamicValidation() {
       document.querySelectorAll('input[data-answer]').forEach(input => {
-        input.addEventListener('input', function(){
-          let userAnswer = this.value.trim();
-          let correctAnswer = this.getAttribute('data-answer').trim();
-          // Если несколько ответов через запятую
-          if(correctAnswer.includes(',')) {
-            let correctArr = correctAnswer.split(',').map(item => item.trim());
-            let userArr = userAnswer.split(',').map(item => item.trim());
-            if(correctArr.length === userArr.length && correctArr.every((ans, i) => ans === userArr[i])) {
+        input.addEventListener('input', function() {
+          const userAnswer = this.value.trim();
+          const correctAnswer = this.getAttribute('data-answer').trim();
+
+          if (correctAnswer.includes(',')) {
+            // Handle comma-separated multiple answers
+            const correctArr = correctAnswer.split(',').map(item => item.trim());
+            const userArr = userAnswer.split(',').map(item => item.trim());
+            if (
+              correctArr.length === userArr.length &&
+              correctArr.every((ans, i) => ans === userArr[i])
+            ) {
               this.classList.remove('is-invalid');
               this.classList.add('is-valid');
             } else {
@@ -136,7 +202,8 @@
               this.classList.add('is-invalid');
             }
           } else {
-            if(userAnswer === correctAnswer) {
+            // Single answer check
+            if (userAnswer === correctAnswer) {
               this.classList.remove('is-invalid');
               this.classList.add('is-valid');
             } else {
@@ -148,86 +215,105 @@
       });
     }
 
-    // Функция проверки ответов в форме по заданному id
+    /**
+     * Function to check all answers in a given form
+     * @param {string} formId - ID of the form
+     * @returns {boolean} True if all answers are correct, false otherwise
+     */
     function checkAnswers(formId) {
-      let form = document.getElementById(formId);
-      let inputs = form.querySelectorAll('input[data-answer]');
+      const form = document.getElementById(formId);
+      const inputs = form.querySelectorAll('input[data-answer]');
       let allCorrect = true;
+
       inputs.forEach(input => {
-        let userAnswer = input.value.trim();
-        let correctAnswer = input.getAttribute('data-answer').trim();
-        if(correctAnswer.includes(',')) {
-          let correctArr = correctAnswer.split(',').map(item => item.trim());
-          let userArr = userAnswer.split(',').map(item => item.trim());
-          if(correctArr.length !== userArr.length || !correctArr.every((ans, i) => ans === userArr[i])) {
-            input.classList.remove('is-valid');
-            input.classList.add('is-invalid');
-            allCorrect = false;
-            return;
-          }
+        const userAnswer = input.value.trim();
+        const correctAnswer = input.getAttribute('data-answer').trim();
+        let isCorrect = false;
+
+        if (correctAnswer.includes(',')) {
+          const correctArr = correctAnswer.split(',').map(item => item.trim());
+          const userArr = userAnswer.split(',').map(item => item.trim());
+          isCorrect =
+            correctArr.length === userArr.length &&
+            correctArr.every((ans, i) => ans === userArr[i]);
         } else {
-          if(userAnswer !== correctAnswer) {
-            input.classList.remove('is-valid');
-            input.classList.add('is-invalid');
-            allCorrect = false;
-            return;
-          }
+          isCorrect = userAnswer === correctAnswer;
         }
-        input.classList.remove('is-invalid');
-        input.classList.add('is-valid');
+
+        if (isCorrect) {
+          input.classList.remove('is-invalid');
+          input.classList.add('is-valid');
+        } else {
+          input.classList.remove('is-valid');
+          input.classList.add('is-invalid');
+          allCorrect = false;
+        }
       });
+
       return allCorrect;
     }
 
-    // Обработчик события загрузки конфигурационного файла
-    document.getElementById('configFileInput').addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const config = JSON.parse(e.target.result);
-          // Ожидается, что конфиг имеет свойства: standard, advanced – массивы задач
-          if (!config.standard || !config.advanced) {
-            document.getElementById('configStatus').textContent = "Неверный формат конфигурации.";
-            return;
+    // Event listener for loading the configuration JSON file
+    document
+      .getElementById('configFileInput')
+      .addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const config = JSON.parse(e.target.result);
+            // Expect config.standard and config.advanced arrays
+            if (!config.standard || !config.advanced) {
+              document.getElementById('configStatus').textContent =
+                'Invalid configuration format.';
+              return;
+            }
+            // Shuffle tasks
+            standardTasks = shuffle(config.standard);
+            advancedTasks = shuffle(config.advanced);
+            // Generate tasks for both tabs
+            generateTasks('standardForm', standardTasks);
+            generateTasks('advancedForm', advancedTasks);
+            document.getElementById('configStatus').textContent =
+              'Configuration loaded successfully.';
+          } catch (err) {
+            document.getElementById('configStatus').textContent =
+              'Error parsing configuration: ' + err.message;
           }
-          // Перемешиваем задачи
-          standardTasks = shuffle(config.standard);
-          advancedTasks = shuffle(config.advanced);
-          // Генерируем задачи для обеих вкладок
-          generateTasks('standardForm', standardTasks);
-          generateTasks('advancedForm', advancedTasks);
-          document.getElementById('configStatus').textContent = "Конфигурация успешно загружена.";
-        } catch (err) {
-          document.getElementById('configStatus').textContent = "Ошибка парсинга конфигурации: " + err.message;
+        };
+        reader.readAsText(file);
+      });
+
+    // Event listener for checking standard tasks
+    document
+      .getElementById('checkStandard')
+      .addEventListener('click', function() {
+        if (checkAnswers('standardForm')) {
+          alert('All standard tasks are correct!');
+          // Enable advanced tasks tab
+          document.getElementById('advanced-tab').removeAttribute('disabled');
+          // Switch to advanced tasks tab
+          const advancedTab = new bootstrap.Tab(
+            document.getElementById('advanced-tab')
+          );
+          advancedTab.show();
+        } else {
+          alert('Some answers in standard tasks are incorrect. Please review.');
         }
-      };
-      reader.readAsText(file);
-    });
+      });
 
-    // Проверка стандартных заданий
-    document.getElementById('checkStandard').addEventListener('click', function(){
-      if(checkAnswers('standardForm')){
-        alert("Все стандартные задания выполнены верно!");
-        // Разблокировать вкладку со специальными заданиями
-        document.getElementById('advanced-tab').removeAttribute('disabled');
-        // Автоматически переключиться на вкладку специальных заданий
-        var advancedTab = new bootstrap.Tab(document.getElementById('advanced-tab'));
-        advancedTab.show();
-      } else {
-        alert("В стандартных заданиях есть ошибки. Проверьте свои ответы.");
-      }
-    });
-
-    // Проверка специальных заданий
-    document.getElementById('checkAdvanced').addEventListener('click', function(){
-      if(checkAnswers('advancedForm')){
-        alert("Все специальные задания выполнены верно!");
-      } else {
-        alert("В специальных заданиях есть ошибки. Проверьте свои ответы.");
-      }
-    });
+    // Event listener for checking advanced tasks
+    document
+      .getElementById('checkAdvanced')
+      .addEventListener('click', function() {
+        if (checkAnswers('advancedForm')) {
+          alert('All advanced tasks are correct!');
+        } else {
+          alert('Some answers in advanced tasks are incorrect. Please review.');
+        }
+      });
   </script>
 </body>
 </html>
