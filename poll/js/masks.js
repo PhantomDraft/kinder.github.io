@@ -34,13 +34,29 @@ export class TimeMask extends InputMask {
 
 export class CommaMask extends InputMask {
   attach() {
+    // on each input keep only digits and commas/spaces, normalize to "X, Y"
     this.input.addEventListener('input', () => {
       const pos = this.input.selectionStart;
       const oldLen = this.input.value.length;
-      const parts = this.input.value.split(/\D+/).filter(v => v);
+
+      // leave only digits and commas
+      let val = this.input.value.replace(/[^\d,]/g, '');
+      // split & trim
+      let parts = val.split(',').map(s => s.trim());
+      // if trailing comma, preserve empty segment
+      if (val.endsWith(',')) parts.push('');
       this.input.value = parts.join(', ');
+
       const newLen = this.input.value.length;
       this.input.selectionStart = this.input.selectionEnd = pos + (newLen - oldLen);
+    });
+
+    // on blur — если после ввода нет запятой, добавляем ", "
+    this.input.addEventListener('blur', () => {
+      const v = this.input.value.trim();
+      if (/^\d+$/.test(v)) {
+        this.input.value = v + ', ';
+      }
     });
   }
 }
