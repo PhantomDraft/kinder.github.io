@@ -66,12 +66,23 @@ export class Worksheet {
     const user = input.value.trim();
     const correct = input.getAttribute('data-answer').trim();
     let ok = false;
-    if (correct.includes(',')) {
-      const ca = correct.split(',').map(v=>v.trim());
-      const ua = user.split(',').map(v=>v.trim());
-      ok = ca.length === ua.length && ca.every((v,i)=>v===ua[i]);
-    } else {
-      ok = user === correct;
+    if (correctAnswer.includes(',')) {
+      // don't validate until user typed at least one comma
+      if (!userAnswer.includes(',')) {
+        this.classList.remove('is-valid', 'is-invalid');
+        return;
+      }
+      // дальше — прежняя проверка по массивам
+      const correctArr = correctAnswer.split(',').map(s=>s.trim());
+      const userArr    = userAnswer.split(',').map(s=>s.trim());
+      if (correctArr.length === userArr.length && correctArr.every((v,i)=>v===userArr[i])) {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+      } else {
+        this.classList.remove('is-valid');
+        this.classList.add('is-invalid');
+      }
+      return;
     }
     input.classList.toggle('is-valid', ok);
     input.classList.toggle('is-invalid', !ok);

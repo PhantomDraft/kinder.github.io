@@ -31,7 +31,7 @@ function genStandard() {
   const K = randInt(1,10), M = randInt(1,10);
   t.push({ text:`Какое слагаемое нужно взять из ${K}, чтобы получить ${K+M}?`, dataAnswer:`${M}` });
   // 9) Time add
-  const sec = randInt(10,300);
+  const sec = randInt(1,59);
   const h = randInt(0,23), m = randInt(0,59), s = randInt(0,59);
   const now = new Date(); now.setHours(h,m,s);
   const later = new Date(now.getTime()+sec*1000);
