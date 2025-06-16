@@ -2,8 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Лист заданий по арифметике, первый класс</title>
-  <!-- Bootstrap CSS -->
+  <title>Grade-1 Math Worksheet</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     .is-invalid { border-color: #dc3545 !important; }
@@ -14,418 +13,36 @@
 </head>
 <body>
   <div class="container py-5">
-    <h1 class="mb-4">Лист заданий по арифметике, первый класс</h1>
-    <p>
-      <a href="https://github.com/PhantomDraft/kinder.github.io/wiki/Script-for-Generating-a-Configuration-File-for-Grade-1-Math-Worksheets">
-        Инструкция генерация конфига
-      </a>
-    </p>
-
-    <!-- Config load / default button -->
-    <div class="d-flex align-items-end mb-3">
-      <div class="config-upload flex-grow-1">
+    <h1 class="mb-4">Первоклассные задания по арифметике</h1>
+    <div class="config-upload d-flex align-items-end mb-3">
+      <div class="flex-grow-1">
         <label for="configFileInput" class="form-label fw-bold">
-          Загрузить конфигурацию заданий (JSON):
+          Load JSON config:
         </label>
         <input type="file" class="form-control" id="configFileInput" accept=".json">
-        <div id="configStatus" class="mt-2"></div>
       </div>
       <button id="loadDefault" class="btn btn-secondary ms-3">Default Config</button>
     </div>
-
-    <!-- Navigation tabs -->
     <ul class="nav nav-tabs" id="taskTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active"
-                id="standard-tab"
-                data-bs-toggle="tab"
-                data-bs-target="#standard"
-                type="button"
-                role="tab"
-                aria-controls="standard"
-                aria-selected="true">
-          Стандартные задания
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link"
-                id="advanced-tab"
-                data-bs-toggle="tab"
-                data-bs-target="#advanced"
-                type="button"
-                role="tab"
-                aria-controls="advanced"
-                aria-selected="false"
-                disabled>
-          Специальные задания
-        </button>
-      </li>
+      <li class="nav-item"><button class="nav-link active" id="standard-tab" data-bs-toggle="tab" data-bs-target="#standard">Standard</button></li>
+      <li class="nav-item"><button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" disabled>Advanced</button></li>
     </ul>
-
-    <!-- Tab contents -->
-    <div class="tab-content" id="taskTabsContent">
-      <div class="tab-pane fade show active" id="standard" role="tabpanel" aria-labelledby="standard-tab">
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="standard">
         <form id="standardForm" class="mt-4"></form>
-        <button type="button" class="btn btn-primary mt-3" id="checkStandard">
-          Проверить стандартные задания
-        </button>
+        <button id="checkStandard" class="btn btn-primary mt-3">Check Standard</button>
       </div>
-      <div class="tab-pane fade" id="advanced" role="tabpanel" aria-labelledby="advanced-tab">
+      <div class="tab-pane fade" id="advanced">
         <form id="advancedForm" class="mt-4"></form>
-        <button type="button" class="btn btn-primary mt-3" id="checkAdvanced">
-          Проверить специальные задания
-        </button>
+        <button id="checkAdvanced" class="btn btn-primary mt-3">Check Advanced</button>
       </div>
     </div>
   </div>
 
-  <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    /** Helper: random integer between min and max inclusive */
-    function randInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    /** Generate default standard tasks with random values */
-    function generateStandardDefault() {
-      const tasks = [];
-
-      // 1. Sum
-      const X = randInt(1, 9), Y = randInt(1, 9);
-      tasks.push({
-        text: `Первое слагаемое ${X}, второе слагаемое ${Y}. Запиши сумму.`,
-        dataAnswer: `${X + Y}`
-      });
-
-      // 2. Tens and units
-      const A = randInt(1, 9), B = randInt(0, 9);
-      tasks.push({
-        text: `Запиши число, в котором ${A} десятков и ${B} единиц.`,
-        dataAnswer: `${A * 10 + B}`
-      });
-
-      // 3. Increment
-      const C = randInt(1, 20), D = randInt(1, 10);
-      tasks.push({
-        text: `Число ${C} увеличь на ${D}.`,
-        dataAnswer: `${C + D}`
-      });
-
-      // 4. Subtraction roles
-      const E = randInt(5, 20), F = randInt(1, E - 1);
-      tasks.push({
-        text: `Уменьшаемое ${E}, вычитаемое ${F}. Запиши разность.`,
-        dataAnswer: `${E - F}`
-      });
-
-      // 5. Neighbors
-      const G = randInt(2, 99);
-      tasks.push({
-        text: `Запиши соседей числа ${G}.`,
-        dataAnswer: `${G - 1}, ${G + 1}`
-      });
-
-      // 6. Smallest two-digit
-      tasks.push({
-        text: `Наименьшее двузначное число.`,
-        dataAnswer: `10`
-      });
-
-      // 7. Subtraction+addition
-      const H = randInt(20, 99), I = randInt(1, 9), J = randInt(1, 9);
-      tasks.push({
-        text: `Разность двузначных чисел ${H} и ${I} прибавь ${J}.`,
-        dataAnswer: `${H - I + J}`
-      });
-
-      // 8. Missing addend
-      const K = randInt(1, 10), M = randInt(1, 10), L = K + M;
-      tasks.push({
-        text: `Какое слагаемое нужно взять из ${K}, чтобы получить ${L}?`,
-        dataAnswer: `${M}`
-      });
-
-      // 9. Time addition
-      const Msec = randInt(10, 300);
-      // random time T
-      const nowH = randInt(0,23), nowMin = randInt(0,59), nowS = randInt(0,59);
-      const date = new Date();
-      date.setHours(nowH, nowMin, nowS);
-      const future = new Date(date.getTime() + Msec*1000);
-      const pad = n => n.toString().padStart(2,'0');
-      const T = `${pad(nowH)}:${pad(nowMin)}:${pad(nowS)}`;
-      const start = `${pad(future.getHours())}:${pad(future.getMinutes())}:${pad(future.getSeconds())}`;
-      tasks.push({
-        text: `Если игра начнётся через ${Msec} секунд, а текущее время ${T}, во сколько стартует игра?`,
-        dataAnswer: start
-      });
-
-      return tasks;
-    }
-
-    /** Generate default advanced tasks with random values */
-    function generateAdvancedDefault() {
-      const tasks = [];
-
-      // 1. Next number
-      const N = randInt(1, 98);
-      tasks.push({
-        text: `Заполни пропуск: ${N}, ___, ${N+2}. Как называется число, которое идёт сразу после ${N}?`,
-        dataAnswer: `${N+1}`
-      });
-
-      // 2. Previous number
-      const Q = randInt(2, 99);
-      tasks.push({
-        text: `Заполни пропуск: ___, ${Q}, ${Q+1}. Какое число находится непосредственно перед ${Q}?`,
-        dataAnswer: `${Q-1}`
-      });
-
-      // 3. Neighbor in seq
-      const S = randInt(1, 98);
-      tasks.push({
-        text: `В последовательности: ${S}, ___, ${S+2} – какое число должно стоять между ${S} и ${S+2}?`,
-        dataAnswer: `${S+1}`
-      });
-
-      // 4. Digitness
-      const d1 = randInt(1,9), d2 = randInt(10,99), d3 = randInt(100,999);
-      tasks.push({
-        text: `Запиши три числа: одно однозначное, другое двузначное и третье трёхзначное. Какому числу соответствует каждое описание?`,
-        dataAnswer: `однозначное – ${d1}; двузначное – ${d2}; трёхзначное – ${d3}`
-      });
-
-      // 5. Addition
-      const V = randInt(0,9), W = randInt(0,9);
-      tasks.push({
-        text: `Выполни: ${V} + ${W} = ?`,
-        dataAnswer: `${V+W}`
-      });
-
-      // 6. Fill series
-      const X1 = randInt(1,20), Y1 = randInt(1,5);
-      const Z1 = X1 + 2*Y1, B1 = X1 + 4*Y1;
-      tasks.push({
-        text: `Последовательность: ${X1}, ___, ${Z1}, ___, ${B1}. Какое число идёт после ${X1} при прибавлении ${Y1}?`,
-        dataAnswer: `${X1 + Y1}`
-      });
-
-      // 7. Compare
-      let cset = new Set();
-      while(cset.size<3) cset.add(randInt(1,20));
-      const [C1,C2,C3] = Array.from(cset);
-      const minC = Math.min(C1,C2,C3), maxC = Math.max(C1,C2,C3);
-      tasks.push({
-        text: `Даны числа: ${C1}, ${C2}, ${C3}. Какое из них наименьшее, а какое – наибольшее?`,
-        dataAnswer: `наименьшее – ${minC}; наибольшее – ${maxC}`
-      });
-
-      // 8. Notebooks
-      const D1 = randInt(1,10);
-      tasks.push({
-        text: `Купили ${D1} тетрадей в клетку, а в линейку – на 1 больше. Сколько тетрадей купили всего?`,
-        dataAnswer: `${D1 + (D1+1)}`
-      });
-
-      // 9. Sign
-      const E1 = randInt(1,20), E2 = randInt(1,E1);
-      const sign = Math.random()<0.5? '+' : '-';
-      const E3 = sign==='+'? E1+E2 : E1-E2;
-      tasks.push({
-        text: `${E1} __ ${E2} = ${E3}. Какой знак (+ или –) нужно поставить, чтобы равенство было верным?`,
-        dataAnswer: `${sign}`
-      });
-
-      // 10. Evenness
-      const Fe = randInt(1,10)*2;
-      let Fo;
-      do { Fo = randInt(1,19); } while(Fo%2===0);
-      let Fother;
-      do { Fother = randInt(1,19); } while(Fother%2===0 || Fother===Fo);
-      tasks.push({
-        text: `Определи, какое из чисел ${Fe}, ${Fo}, ${Fother} является чётным. Какой признак позволяет отнести число к чётным?`,
-        dataAnswer: `${Fe}; оно делится на 2 без остатка`
-      });
-
-      // 11. Steps count
-      const G1 = randInt(1,10), H1 = randInt(1,5);
-      tasks.push({
-        text: `Заполни пропуски: ${G1}, ___, ${G1+2*H1}, ___, ${G1+4*H1}, если каждое число увеличивается на ${H1}.`,
-        dataAnswer: `${G1+H1}, ${G1+3*H1}`
-      });
-
-      // 12. Mental addition
-      const I1 = randInt(1,9);
-      const delta = 10 - (I1 % 10);
-      const I2 = randInt(delta+1, delta+9);
-      const sum = I1 + I2;
-      tasks.push({
-        text: `Как быстро вычислить сумму ${I1} + ${I2}, если сначала довести ${I1} до круглого числа? Опиши свой алгоритм.`,
-        dataAnswer: `${I1} + ${delta} = ${I1+delta}, затем + ${I2-delta} = ${sum}`
-      });
-
-      // 13. Time difference
-      const secDiff = randInt(10,300);
-      const T2h = randInt(0,23), T2m = randInt(0,59), T2s = randInt(0,59);
-      const dt = new Date();
-      dt.setHours(T2h, T2m, T2s);
-      const dt1 = new Date(dt.getTime() + secDiff*1000);
-      const T1 = `${String(dt1.getHours()).padStart(2,'0')}:${String(dt1.getMinutes()).padStart(2,'0')}:${String(dt1.getSeconds()).padStart(2,'0')}`;
-      const T2 = `${String(T2h).padStart(2,'0')}:${String(T2m).padStart(2,'0')}:${String(T2s).padStart(2,'0')}`;
-      tasks.push({
-        text: `Если запуск игры назначен на ${T1}, а текущее время ${T2}, сколько секунд осталось до начала?`,
-        dataAnswer: `${secDiff}`
-      });
-
-      // 14. Odd one out
-      const a0 = randInt(1,10), d = randInt(1,5);
-      const seq = [0,1,2,3,4].map(i => a0 + i*d);
-      const k = randInt(0,4);
-      const wrong = seq[k] + d + 1; // break pattern
-      seq[k] = wrong;
-      tasks.push({
-        text: `В последовательности: ${seq.join(', ')} одно число выбивается. Найди лишнее и обоснуй свой выбор.`,
-        dataAnswer: `${wrong}; потому что остальные идут с шагом ${d}, а это нет`
-      });
-
-      // 15. Compare figures (static)
-      tasks.push({
-        text: `Сравни фигуры: треугольник (3 стороны) __ прямоугольник (4 стороны). Заполни пробел знаком сравнения, чтобы указать, у какой фигуры больше сторон.`,
-        dataAnswer: `<`
-      });
-
-      // 16. More than
-      const L1 = randInt(1,10), K2 = randInt(1,9);
-      tasks.push({
-        text: `У Кати на ${K2} предмета больше, чем у Васи. Если у Васи всего ${L1} предметов, сколько предметов у Кати? Как записать эту ситуацию в виде арифметического выражения?`,
-        dataAnswer: `${L1+K2}; ${L1} + ${K2} = ${L1+K2}`
-      });
-
-      return tasks;
-    }
-
-    /** Utility class for shuffling arrays */
-    class Utils {
-      static shuffle(arr) { for (let i=arr.length-1;i>0;i--){ const j=randInt(0,i); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
-    }
-
-    /** Base input mask */
-    class InputMask {
-      constructor(inp){ this.inp=inp; }
-      attach(){}
-    }
-    /** Time formatting mask */
-    class TimeMask extends InputMask {
-      attach(){
-        this.inp.addEventListener('input',()=>{
-          const pos=this.inp.selectionStart,old=this.inp.value.length;
-          let d=this.inp.value.replace(/\D/g,'').slice(0,6),p=[];
-          if(d.length>=2){p.push(d.slice(0,2));
-            if(d.length>=4){p.push(d.slice(2,4)); if(d.length>4)p.push(d.slice(4));}
-            else p.push(d.slice(2));
-          } else p.push(d);
-          this.inp.value=p.join(':');
-          const neu=this.inp.value.length;
-          this.inp.selectionStart=this.inp.selectionEnd=pos+(neu-old);
-        });
-      }
-    }
-    /** Comma formatting mask */
-    class CommaMask extends InputMask {
-      attach(){
-        this.inp.addEventListener('input',()=>{
-          const pos=this.inp.selectionStart,old=this.inp.value.length;
-          const parts=this.inp.value.split(/\D+/).filter(v=>v);
-          this.inp.value=parts.join(', ');
-          const neu=this.inp.value.length;
-          this.inp.selectionStart=this.inp.selectionEnd=pos+(neu-old);
-        });
-      }
-    }
-
-    /** Worksheet form handler */
-    class Worksheet {
-      constructor(formId,btnId,onOK){
-        this.form=document.getElementById(formId);
-        this.btn=document.getElementById(btnId);
-        this.onOK=onOK;
-        this.btn.addEventListener('click',()=>this.checkAll() && this.onOK && this.onOK());
-      }
-      load(tasks){
-        this.form.innerHTML='';
-        tasks.forEach((t,i)=>{
-          const div=document.createElement('div');div.className='mb-3';
-          const lbl=document.createElement('label'); lbl.className='form-label';
-          lbl.htmlFor=`${this.form.id}_t${i}`; lbl.textContent=`${i+1}. ${t.text}`;
-          const inp=document.createElement('input'); inp.type='text'; inp.className='form-control';
-          inp.id=`${this.form.id}_t${i}`; inp.setAttribute('data-answer',t.dataAnswer);
-          if(t.dataAnswer.includes(':')) new TimeMask(inp).attach();
-          else if(t.dataAnswer.includes(',')) new CommaMask(inp).attach();
-          inp.addEventListener('input',()=>this.validate(inp));
-          const fb=document.createElement('div'); fb.className='invalid-feedback'; fb.textContent='Incorrect';
-          div.append(lbl,inp,fb); this.form.appendChild(div);
-        });
-      }
-      validate(inp){
-        const usr=inp.value.trim(),cor=inp.getAttribute('data-answer').trim();
-        let ok=false;
-        if(cor.includes(',')){
-          const ca=cor.split(',').map(v=>v.trim()), ua=usr.split(',').map(v=>v.trim());
-          ok=ca.length===ua.length && ca.every((v,i)=>v===ua[i]);
-        } else ok=usr===cor;
-        inp.classList.toggle('is-valid',ok); inp.classList.toggle('is-invalid',!ok);
-        return ok;
-      }
-      checkAll(){
-        const inputs=[...this.form.querySelectorAll('input[data-answer]')];
-        return inputs.every(inp=>this.validate(inp));
-      }
-    }
-
-    /** Main application */
-    class App {
-      constructor(){
-        this.std=new Worksheet('standardForm','checkStandard',()=>this.unlock());
-        this.adv=new Worksheet('advancedForm','checkAdvanced');
-        this.bind();
-      }
-      bind(){
-        document.getElementById('configFileInput').addEventListener('change',e=>{
-          const f=e.target.files[0];
-          if(!f) return;
-          const r=new FileReader();
-          r.onload=ev=>{
-            try{
-              const cfg=JSON.parse(ev.target.result);
-              this.load(cfg);
-              configStatus.textContent='Loaded.';
-            }catch(e){ configStatus.textContent='Error: '+e;}
-          };
-          r.readAsText(f);
-        });
-        document.getElementById('loadDefault').addEventListener('click',()=>{
-          this.load({
-            standard:generateStandardDefault(),
-            advanced:generateAdvancedDefault()
-          });
-          configStatus.textContent='Default generated.';
-        });
-      }
-      load(cfg){
-        Utils.shuffle(cfg.standard); Utils.shuffle(cfg.advanced);
-        this.std.load(cfg.standard);
-        this.adv.load(cfg.advanced);
-      }
-      unlock(){
-        const btn=document.getElementById('advanced-tab');
-        btn.removeAttribute('disabled');
-        new bootstrap.Tab(btn).show();
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded',()=>new App());
-  </script>
+  <script src="poll/js/utils.js"></script>
+  <script src="poll/js/masks.js"></script>
+  <script src="poll/js/worksheet.js"></script>
+  <script src="poll/js/app.js"></script>
 </body>
 </html>
