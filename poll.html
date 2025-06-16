@@ -83,278 +83,349 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Default configuration object
-    const defaultConfig = {
-      "instructions": "Создать два листа самостоятельной работы для первоклассников по арифметической терминологии. В каждом листе задания перемешаны в случайном порядке. Числовые значения и условия уникализированы для каждого варианта. Формулировки адаптированы для самостоятельного выполнения без подсказок.",
-      "standard": [
-        {"text":"Первое слагаемое 4, второе слагаемое 7. Запиши сумму.","dataAnswer":"11"},
-        {"text":"Запиши число, в котором 3 десятка и 5 единиц.","dataAnswer":"35"},
-        {"text":"Число 6 увеличь на 4.","dataAnswer":"10"},
-        {"text":"Уменьшаемое 9, вычитаемое 3. Запиши разность.","dataAnswer":"6"},
-        {"text":"Запиши соседей числа 14.","dataAnswer":"13, 15"},
-        {"text":"Наименьшее двузначное число.","dataAnswer":"10"},
-        {"text":"К разности чисел 23 и 8 прибавь 6.","dataAnswer":"21"},
-        {"text":"Какое слагаемое нужно взять из 8, чтобы получить 13?","dataAnswer":"5"},
-        {"text":"Если игра начнётся через 45 секунд, а текущее время 12:00:15, во сколько стартует игра?","dataAnswer":"12:01:00"}
-      ],
-      "advanced": [
-        {"text":"Заполни пропуск: 9, ___, 11. Как называется число, которое идёт сразу после 9?","dataAnswer":"10"},
-        {"text":"Заполни пропуск: ___, 7, 8. Какое число находится непосредственно перед 7?","dataAnswer":"6"},
-        {"text":"В последовательности: 20, ___, 22 – какое число должно стоять между 20 и 22?","dataAnswer":"21"},
-        {"text":"Запиши три числа: одно однозначное, другое двузначное и третье трёхзначное. Какому числу соответствует каждое описание?","dataAnswer":"однозначное – 5; двузначное – 34; трёхзначное – 128"},
-        {"text":"Выполни: 3 + 6 = ?","dataAnswer":"9"},
-        {"text":"Последовательность: 2, ___, 8, ___, 14. Какое число идёт после 2 при прибавлении 3?","dataAnswer":"5"},
-        {"text":"Даны числа: 4, 9, 1. Какое из них наименьшее, а какое – наибольшее?","dataAnswer":"наименьшее – 1; наибольшее – 9"},
-        {"text":"Купили 7 тетрадей в клетку, а в линейку – на 1 больше. Сколько тетрадей купили всего?","dataAnswer":"15"},
-        {"text":"5 __ 3 = 2. Какой знак (+ или –) нужно поставить, чтобы равенство было верным?","dataAnswer":"-"},
-        {"text":"Определи, какое из чисел 7, 4, 9 является чётным. Какой признак позволяет отнести число к чётным?","dataAnswer":"4; оно делится на 2 без остатка"},
-        {"text":"Заполни пропуски: 1, ___, 5, ___, 9, если каждое число увеличивается на 2.","dataAnswer":"3, 7"},
-        {"text":"Как быстро вычислить сумму 9 + 6, если сначала довести 9 до круглого числа? Опиши свой алгоритм.","dataAnswer":"9 + 1 = 10, затем +5 = 15"},
-        {"text":"Если запуск игры назначен на 14:20:00, а текущее время 14:15:30, сколько секунд осталось до начала?","dataAnswer":"270"},
-        {"text":"В последовательности: 2, 4, 6, 7, 8 одно число выбивается. Найди лишнее и обоснуй свой выбор.","dataAnswer":"7; потому что остальные чётные, а 7 нечётное"},
-        {"text":"Сравни фигуры: треугольник (3 стороны) __ прямоугольник (4 стороны). Заполни пробел знаком сравнения, чтобы указать, у какой фигуры больше сторон.","dataAnswer":"<"},
-        {"text":"У Кати на 3 предмета больше, чем у Васи. Если у Васи всего 4 предмета, сколько предметов у Кати? Как записать эту ситуацию в виде арифметического выражения?","dataAnswer":"7; 4 + 3 = 7"}
-      ]
-    };
+    /** Helper: random integer between min and max inclusive */
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-    /**
-     * Utility class for shuffling arrays
-     */
+    /** Generate default standard tasks with random values */
+    function generateStandardDefault() {
+      const tasks = [];
+
+      // 1. Sum
+      const X = randInt(1, 9), Y = randInt(1, 9);
+      tasks.push({
+        text: `Первое слагаемое ${X}, второе слагаемое ${Y}. Запиши сумму.`,
+        dataAnswer: `${X + Y}`
+      });
+
+      // 2. Tens and units
+      const A = randInt(1, 9), B = randInt(0, 9);
+      tasks.push({
+        text: `Запиши число, в котором ${A} десятков и ${B} единиц.`,
+        dataAnswer: `${A * 10 + B}`
+      });
+
+      // 3. Increment
+      const C = randInt(1, 20), D = randInt(1, 10);
+      tasks.push({
+        text: `Число ${C} увеличь на ${D}.`,
+        dataAnswer: `${C + D}`
+      });
+
+      // 4. Subtraction roles
+      const E = randInt(5, 20), F = randInt(1, E - 1);
+      tasks.push({
+        text: `Уменьшаемое ${E}, вычитаемое ${F}. Запиши разность.`,
+        dataAnswer: `${E - F}`
+      });
+
+      // 5. Neighbors
+      const G = randInt(2, 99);
+      tasks.push({
+        text: `Запиши соседей числа ${G}.`,
+        dataAnswer: `${G - 1}, ${G + 1}`
+      });
+
+      // 6. Smallest two-digit
+      tasks.push({
+        text: `Наименьшее двузначное число.`,
+        dataAnswer: `10`
+      });
+
+      // 7. Subtraction+addition
+      const H = randInt(20, 99), I = randInt(1, 9), J = randInt(1, 9);
+      tasks.push({
+        text: `Разность двузначных чисел ${H} и ${I} прибавь ${J}.`,
+        dataAnswer: `${H - I + J}`
+      });
+
+      // 8. Missing addend
+      const K = randInt(1, 10), M = randInt(1, 10), L = K + M;
+      tasks.push({
+        text: `Какое слагаемое нужно взять из ${K}, чтобы получить ${L}?`,
+        dataAnswer: `${M}`
+      });
+
+      // 9. Time addition
+      const Msec = randInt(10, 300);
+      // random time T
+      const nowH = randInt(0,23), nowMin = randInt(0,59), nowS = randInt(0,59);
+      const date = new Date();
+      date.setHours(nowH, nowMin, nowS);
+      const future = new Date(date.getTime() + Msec*1000);
+      const pad = n => n.toString().padStart(2,'0');
+      const T = `${pad(nowH)}:${pad(nowMin)}:${pad(nowS)}`;
+      const start = `${pad(future.getHours())}:${pad(future.getMinutes())}:${pad(future.getSeconds())}`;
+      tasks.push({
+        text: `Если игра начнётся через ${Msec} секунд, а текущее время ${T}, во сколько стартует игра?`,
+        dataAnswer: start
+      });
+
+      return tasks;
+    }
+
+    /** Generate default advanced tasks with random values */
+    function generateAdvancedDefault() {
+      const tasks = [];
+
+      // 1. Next number
+      const N = randInt(1, 98);
+      tasks.push({
+        text: `Заполни пропуск: ${N}, ___, ${N+2}. Как называется число, которое идёт сразу после ${N}?`,
+        dataAnswer: `${N+1}`
+      });
+
+      // 2. Previous number
+      const Q = randInt(2, 99);
+      tasks.push({
+        text: `Заполни пропуск: ___, ${Q}, ${Q+1}. Какое число находится непосредственно перед ${Q}?`,
+        dataAnswer: `${Q-1}`
+      });
+
+      // 3. Neighbor in seq
+      const S = randInt(1, 98);
+      tasks.push({
+        text: `В последовательности: ${S}, ___, ${S+2} – какое число должно стоять между ${S} и ${S+2}?`,
+        dataAnswer: `${S+1}`
+      });
+
+      // 4. Digitness
+      const d1 = randInt(1,9), d2 = randInt(10,99), d3 = randInt(100,999);
+      tasks.push({
+        text: `Запиши три числа: одно однозначное, другое двузначное и третье трёхзначное. Какому числу соответствует каждое описание?`,
+        dataAnswer: `однозначное – ${d1}; двузначное – ${d2}; трёхзначное – ${d3}`
+      });
+
+      // 5. Addition
+      const V = randInt(0,9), W = randInt(0,9);
+      tasks.push({
+        text: `Выполни: ${V} + ${W} = ?`,
+        dataAnswer: `${V+W}`
+      });
+
+      // 6. Fill series
+      const X1 = randInt(1,20), Y1 = randInt(1,5);
+      const Z1 = X1 + 2*Y1, B1 = X1 + 4*Y1;
+      tasks.push({
+        text: `Последовательность: ${X1}, ___, ${Z1}, ___, ${B1}. Какое число идёт после ${X1} при прибавлении ${Y1}?`,
+        dataAnswer: `${X1 + Y1}`
+      });
+
+      // 7. Compare
+      let cset = new Set();
+      while(cset.size<3) cset.add(randInt(1,20));
+      const [C1,C2,C3] = Array.from(cset);
+      const minC = Math.min(C1,C2,C3), maxC = Math.max(C1,C2,C3);
+      tasks.push({
+        text: `Даны числа: ${C1}, ${C2}, ${C3}. Какое из них наименьшее, а какое – наибольшее?`,
+        dataAnswer: `наименьшее – ${minC}; наибольшее – ${maxC}`
+      });
+
+      // 8. Notebooks
+      const D1 = randInt(1,10);
+      tasks.push({
+        text: `Купили ${D1} тетрадей в клетку, а в линейку – на 1 больше. Сколько тетрадей купили всего?`,
+        dataAnswer: `${D1 + (D1+1)}`
+      });
+
+      // 9. Sign
+      const E1 = randInt(1,20), E2 = randInt(1,E1);
+      const sign = Math.random()<0.5? '+' : '-';
+      const E3 = sign==='+'? E1+E2 : E1-E2;
+      tasks.push({
+        text: `${E1} __ ${E2} = ${E3}. Какой знак (+ или –) нужно поставить, чтобы равенство было верным?`,
+        dataAnswer: `${sign}`
+      });
+
+      // 10. Evenness
+      const Fe = randInt(1,10)*2;
+      let Fo;
+      do { Fo = randInt(1,19); } while(Fo%2===0);
+      let Fother;
+      do { Fother = randInt(1,19); } while(Fother%2===0 || Fother===Fo);
+      tasks.push({
+        text: `Определи, какое из чисел ${Fe}, ${Fo}, ${Fother} является чётным. Какой признак позволяет отнести число к чётным?`,
+        dataAnswer: `${Fe}; оно делится на 2 без остатка`
+      });
+
+      // 11. Steps count
+      const G1 = randInt(1,10), H1 = randInt(1,5);
+      tasks.push({
+        text: `Заполни пропуски: ${G1}, ___, ${G1+2*H1}, ___, ${G1+4*H1}, если каждое число увеличивается на ${H1}.`,
+        dataAnswer: `${G1+H1}, ${G1+3*H1}`
+      });
+
+      // 12. Mental addition
+      const I1 = randInt(1,9);
+      const delta = 10 - (I1 % 10);
+      const I2 = randInt(delta+1, delta+9);
+      const sum = I1 + I2;
+      tasks.push({
+        text: `Как быстро вычислить сумму ${I1} + ${I2}, если сначала довести ${I1} до круглого числа? Опиши свой алгоритм.`,
+        dataAnswer: `${I1} + ${delta} = ${I1+delta}, затем + ${I2-delta} = ${sum}`
+      });
+
+      // 13. Time difference
+      const secDiff = randInt(10,300);
+      const T2h = randInt(0,23), T2m = randInt(0,59), T2s = randInt(0,59);
+      const dt = new Date();
+      dt.setHours(T2h, T2m, T2s);
+      const dt1 = new Date(dt.getTime() + secDiff*1000);
+      const T1 = `${String(dt1.getHours()).padStart(2,'0')}:${String(dt1.getMinutes()).padStart(2,'0')}:${String(dt1.getSeconds()).padStart(2,'0')}`;
+      const T2 = `${String(T2h).padStart(2,'0')}:${String(T2m).padStart(2,'0')}:${String(T2s).padStart(2,'0')}`;
+      tasks.push({
+        text: `Если запуск игры назначен на ${T1}, а текущее время ${T2}, сколько секунд осталось до начала?`,
+        dataAnswer: `${secDiff}`
+      });
+
+      // 14. Odd one out
+      const a0 = randInt(1,10), d = randInt(1,5);
+      const seq = [0,1,2,3,4].map(i => a0 + i*d);
+      const k = randInt(0,4);
+      const wrong = seq[k] + d + 1; // break pattern
+      seq[k] = wrong;
+      tasks.push({
+        text: `В последовательности: ${seq.join(', ')} одно число выбивается. Найди лишнее и обоснуй свой выбор.`,
+        dataAnswer: `${wrong}; потому что остальные идут с шагом ${d}, а это нет`
+      });
+
+      // 15. Compare figures (static)
+      tasks.push({
+        text: `Сравни фигуры: треугольник (3 стороны) __ прямоугольник (4 стороны). Заполни пробел знаком сравнения, чтобы указать, у какой фигуры больше сторон.`,
+        dataAnswer: `<`
+      });
+
+      // 16. More than
+      const L1 = randInt(1,10), K2 = randInt(1,9);
+      tasks.push({
+        text: `У Кати на ${K2} предмета больше, чем у Васи. Если у Васи всего ${L1} предметов, сколько предметов у Кати? Как записать эту ситуацию в виде арифметического выражения?`,
+        dataAnswer: `${L1+K2}; ${L1} + ${K2} = ${L1+K2}`
+      });
+
+      return tasks;
+    }
+
+    /** Utility class for shuffling arrays */
     class Utils {
-      /** Fisher–Yates shuffle */
-      static shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-      }
+      static shuffle(arr) { for (let i=arr.length-1;i>0;i--){ const j=randInt(0,i); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
     }
 
-    /**
-     * Base class for input masks
-     */
+    /** Base input mask */
     class InputMask {
-      constructor(input) {
-        this.input = input;
-      }
-      attach() {}
+      constructor(inp){ this.inp=inp; }
+      attach(){}
     }
-
-    /**
-     * Time mask: formats as HH:MM:SS
-     */
+    /** Time formatting mask */
     class TimeMask extends InputMask {
-      attach() {
-        this.input.addEventListener('input', () => {
-          const pos = this.input.selectionStart;
-          const oldLen = this.input.value.length;
-          this.input.value = this.format(this.input.value);
-          const newLen = this.input.value.length;
-          this.input.selectionStart = this.input.selectionEnd = pos + (newLen - oldLen);
+      attach(){
+        this.inp.addEventListener('input',()=>{
+          const pos=this.inp.selectionStart,old=this.inp.value.length;
+          let d=this.inp.value.replace(/\D/g,'').slice(0,6),p=[];
+          if(d.length>=2){p.push(d.slice(0,2));
+            if(d.length>=4){p.push(d.slice(2,4)); if(d.length>4)p.push(d.slice(4));}
+            else p.push(d.slice(2));
+          } else p.push(d);
+          this.inp.value=p.join(':');
+          const neu=this.inp.value.length;
+          this.inp.selectionStart=this.inp.selectionEnd=pos+(neu-old);
         });
       }
-      format(value) {
-        const digits = value.replace(/\D/g, '').slice(0, 6);
-        const parts = [];
-        if (digits.length >= 2) {
-          parts.push(digits.slice(0,2));
-          if (digits.length >= 4) {
-            parts.push(digits.slice(2,4));
-            if (digits.length > 4) parts.push(digits.slice(4));
-          } else {
-            parts.push(digits.slice(2));
-          }
-        } else {
-          parts.push(digits);
-        }
-        return parts.join(':');
-      }
     }
-
-    /**
-     * Comma mask: splits numeric entries by comma+space
-     */
+    /** Comma formatting mask */
     class CommaMask extends InputMask {
-      attach() {
-        this.input.addEventListener('input', () => {
-          const pos = this.input.selectionStart;
-          const oldLen = this.input.value.length;
-          this.input.value = this.format(this.input.value);
-          const newLen = this.input.value.length;
-          this.input.selectionStart = this.input.selectionEnd = pos + (newLen - oldLen);
+      attach(){
+        this.inp.addEventListener('input',()=>{
+          const pos=this.inp.selectionStart,old=this.inp.value.length;
+          const parts=this.inp.value.split(/\D+/).filter(v=>v);
+          this.inp.value=parts.join(', ');
+          const neu=this.inp.value.length;
+          this.inp.selectionStart=this.inp.selectionEnd=pos+(neu-old);
         });
-      }
-      format(value) {
-        const parts = value.split(/\D+/).filter(v => v);
-        return parts.join(', ');
       }
     }
 
-    /**
-     * Represents a single worksheet form (standard or advanced)
-     */
+    /** Worksheet form handler */
     class Worksheet {
-      /**
-       * @param {string} formId      - ID of <form>
-       * @param {string} checkBtnId  - ID of check button
-       * @param {Function} onSuccess - callback on all-correct
-       */
-      constructor(formId, checkBtnId, onSuccess = null) {
-        this.formEl = document.getElementById(formId);
-        this.checkBtn = document.getElementById(checkBtnId);
-        this.onSuccess = onSuccess;
-        this.tasks = [];
-        this._initCheck();
+      constructor(formId,btnId,onOK){
+        this.form=document.getElementById(formId);
+        this.btn=document.getElementById(btnId);
+        this.onOK=onOK;
+        this.btn.addEventListener('click',()=>this.checkAll() && this.onOK && this.onOK());
       }
-
-      /** Generate and render tasks */
-      load(tasks) {
-        this.tasks = tasks;
-        this._render();
-      }
-
-      /** Render tasks into the form */
-      _render() {
-        this.formEl.innerHTML = '';
-        this.tasks.forEach((task, i) => {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'mb-3';
-
-          const label = document.createElement('label');
-          label.className = 'form-label';
-          label.htmlFor = `${this.formEl.id}_task${i}`;
-          label.textContent = `${i+1}. ${task.text}`;
-
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.className = 'form-control';
-          input.id = `${this.formEl.id}_task${i}`;
-          input.setAttribute('data-answer', task.dataAnswer);
-          input.placeholder = 'Enter answer here';
-
-          // Attach masks if needed
-          if (task.dataAnswer.includes(':')) {
-            new TimeMask(input).attach();
-          } else if (task.dataAnswer.includes(',')) {
-            new CommaMask(input).attach();
-          }
-
-          // Live validation
-          input.addEventListener('input', () => this._validateInput(input));
-
-          const feedback = document.createElement('div');
-          feedback.className = 'invalid-feedback';
-          feedback.textContent = 'Incorrect answer';
-
-          wrapper.append(label, input, feedback);
-          this.formEl.appendChild(wrapper);
+      load(tasks){
+        this.form.innerHTML='';
+        tasks.forEach((t,i)=>{
+          const div=document.createElement('div');div.className='mb-3';
+          const lbl=document.createElement('label'); lbl.className='form-label';
+          lbl.htmlFor=`${this.form.id}_t${i}`; lbl.textContent=`${i+1}. ${t.text}`;
+          const inp=document.createElement('input'); inp.type='text'; inp.className='form-control';
+          inp.id=`${this.form.id}_t${i}`; inp.setAttribute('data-answer',t.dataAnswer);
+          if(t.dataAnswer.includes(':')) new TimeMask(inp).attach();
+          else if(t.dataAnswer.includes(',')) new CommaMask(inp).attach();
+          inp.addEventListener('input',()=>this.validate(inp));
+          const fb=document.createElement('div'); fb.className='invalid-feedback'; fb.textContent='Incorrect';
+          div.append(lbl,inp,fb); this.form.appendChild(div);
         });
       }
-
-      /** Validate a single input field */
-      _validateInput(input) {
-        const user = input.value.trim();
-        const correct = input.getAttribute('data-answer').trim();
-        let ok = false;
-        if (correct.includes(',')) {
-          const ca = correct.split(',').map(v=>v.trim());
-          const ua = user.split(',').map(v=>v.trim());
-          ok = ca.length === ua.length && ca.every((v,i)=>v===ua[i]);
-        } else {
-          ok = user === correct;
-        }
-        input.classList.toggle('is-valid', ok);
-        input.classList.toggle('is-invalid', !ok);
+      validate(inp){
+        const usr=inp.value.trim(),cor=inp.getAttribute('data-answer').trim();
+        let ok=false;
+        if(cor.includes(',')){
+          const ca=cor.split(',').map(v=>v.trim()), ua=usr.split(',').map(v=>v.trim());
+          ok=ca.length===ua.length && ca.every((v,i)=>v===ua[i]);
+        } else ok=usr===cor;
+        inp.classList.toggle('is-valid',ok); inp.classList.toggle('is-invalid',!ok);
         return ok;
       }
-
-      /** Check all inputs; return true if all correct */
-      _checkAll() {
-        const inputs = Array.from(this.formEl.querySelectorAll('input[data-answer]'));
-        const results = inputs.map(input => this._validateInput(input));
-        return results.every(Boolean);
-      }
-
-      /** Initialize check button behavior */
-      _initCheck() {
-        this.checkBtn.addEventListener('click', () => {
-          if (this._checkAll()) {
-            alert('Все задания выполнены верно!');
-            if (this.onSuccess) this.onSuccess();
-          } else {
-            alert('Есть ошибки. Проверьте ответы.');
-          }
-        });
+      checkAll(){
+        const inputs=[...this.form.querySelectorAll('input[data-answer]')];
+        return inputs.every(inp=>this.validate(inp));
       }
     }
 
-    /**
-     * Main application controller
-     */
+    /** Main application */
     class App {
-      constructor() {
-        this.standardSheet = new Worksheet(
-          'standardForm',
-          'checkStandard',
-          () => this._unlockAdvanced()
-        );
-        this.advancedSheet = new Worksheet('advancedForm', 'checkAdvanced');
-        this._bindConfigHandlers();
+      constructor(){
+        this.std=new Worksheet('standardForm','checkStandard',()=>this.unlock());
+        this.adv=new Worksheet('advancedForm','checkAdvanced');
+        this.bind();
       }
-
-      /** Bind file input and default button */
-      _bindConfigHandlers() {
-        const fileInput = document.getElementById('configFileInput');
-        const defaultBtn = document.getElementById('loadDefault');
-        const statusEl  = document.getElementById('configStatus');
-
-        fileInput.addEventListener('change', e => {
-          const file = e.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = evt => {
-            try {
-              const cfg = JSON.parse(evt.target.result);
-              if (!cfg.standard || !cfg.advanced) {
-                statusEl.textContent = 'Invalid configuration format.';
-                return;
-              }
-              this._loadConfig(cfg);
-              statusEl.textContent = 'Конфигурация загружена.';
-            } catch (err) {
-              statusEl.textContent = 'Error parsing JSON: ' + err.message;
-            }
+      bind(){
+        document.getElementById('configFileInput').addEventListener('change',e=>{
+          const f=e.target.files[0];
+          if(!f) return;
+          const r=new FileReader();
+          r.onload=ev=>{
+            try{
+              const cfg=JSON.parse(ev.target.result);
+              this.load(cfg);
+              configStatus.textContent='Loaded.';
+            }catch(e){ configStatus.textContent='Error: '+e;}
           };
-          reader.readAsText(file);
+          r.readAsText(f);
         });
-
-        defaultBtn.addEventListener('click', () => {
-          this._loadConfig(defaultConfig);
-          statusEl.textContent = 'Default configuration loaded.';
+        document.getElementById('loadDefault').addEventListener('click',()=>{
+          this.load({
+            standard:generateStandardDefault(),
+            advanced:generateAdvancedDefault()
+          });
+          configStatus.textContent='Default generated.';
         });
       }
-
-      /** Shuffle and dispatch config to worksheets */
-      _loadConfig(cfg) {
-        const std = Utils.shuffle(cfg.standard.slice());
-        const adv = Utils.shuffle(cfg.advanced.slice());
-        this.standardSheet.load(std);
-        this.advancedSheet.load(adv);
+      load(cfg){
+        Utils.shuffle(cfg.standard); Utils.shuffle(cfg.advanced);
+        this.std.load(cfg.standard);
+        this.adv.load(cfg.advanced);
       }
-
-      /** Enable and show advanced tab */
-      _unlockAdvanced() {
-        const advTabBtn = document.getElementById('advanced-tab');
-        advTabBtn.removeAttribute('disabled');
-        new bootstrap.Tab(advTabBtn).show();
+      unlock(){
+        const btn=document.getElementById('advanced-tab');
+        btn.removeAttribute('disabled');
+        new bootstrap.Tab(btn).show();
       }
     }
 
-    // Initialize the app on DOM ready
-    document.addEventListener('DOMContentLoaded', () => {
-      new App();
-    });
+    document.addEventListener('DOMContentLoaded',()=>new App());
   </script>
 </body>
 </html>
