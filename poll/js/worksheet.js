@@ -50,7 +50,7 @@ export class Worksheet {
       }
 
       // Live validation
-      input.addEventListener('input', () => this.validate(input));
+      input.addEventListener('blur', () => this.validate(input));
 
       const feedback = document.createElement('div');
       feedback.className = 'invalid-feedback';
@@ -63,27 +63,27 @@ export class Worksheet {
 
   /** Validate single input */
   validate(input) {
-    const user = input.value.trim();
-    const correct = input.getAttribute('data-answer').trim();
-    let ok = false;
+    const userAnswer    = input.value.trim();
+    const correctAnswer = input.getAttribute('data-answer').trim();
+    let ok;
+
     if (correctAnswer.includes(',')) {
-      // don't validate until user typed at least one comma
+      // дождёмся хотя бы одной запятой, прежде чем валидировать
       if (!userAnswer.includes(',')) {
-        this.classList.remove('is-valid', 'is-invalid');
-        return;
+        input.classList.remove('is-valid');
+        input.classList.remove('is-invalid');
+        return false;
       }
-      // дальше — прежняя проверка по массивам
-      const correctArr = correctAnswer.split(',').map(s=>s.trim());
-      const userArr    = userAnswer.split(',').map(s=>s.trim());
-      if (correctArr.length === userArr.length && correctArr.every((v,i)=>v===userArr[i])) {
-        this.classList.remove('is-invalid');
-        this.classList.add('is-valid');
-      } else {
-        this.classList.remove('is-valid');
-        this.classList.add('is-invalid');
-      }
-      return;
+      // сравниваем массивы
+      const correctArr = correctAnswer.split(',').map(s => s.trim());
+      const userArr    = userAnswer.split(',').map(s => s.trim());
+      ok = correctArr.length === userArr.length
+        && correctArr.every((v, i) => v === userArr[i]);
+    } else {
+      // одиночный ответ
+      ok = (userAnswer === correctAnswer);
     }
+
     input.classList.toggle('is-valid', ok);
     input.classList.toggle('is-invalid', !ok);
     return ok;
