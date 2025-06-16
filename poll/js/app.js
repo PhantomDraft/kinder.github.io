@@ -27,9 +27,13 @@ function genStandard() {
   // 7) Subtract+add
   const H = randInt(20,99), I = randInt(1,9), J = randInt(1,9);
   t.push({ text:`Разность двузначных чисел ${H} и ${I} прибавь ${J}.`, dataAnswer:`${H-I+J}` });
-  // 8) Missing addend
-  const K = randInt(1,10), M = randInt(1,10);
-  t.push({ text:`Какое слагаемое нужно взять из ${K}, чтобы получить ${K+M}?`, dataAnswer:`${M}` });
+  // 8) Missing addend (both K and M are single-digit)
+  const K = randInt(1,9);
+  const M = randInt(1,9);
+  t.push({
+    text: `Какое слагаемое нужно взять из ${K}, чтобы получить ${K + M}?`,
+    dataAnswer: `${M}`
+  });
   // 9) Time add
   const sec = randInt(1,59);
   const h = randInt(0,23), m = randInt(0,59), s = randInt(0,59);
