@@ -62,7 +62,16 @@ export class Worksheet {
       feedback.className = 'invalid-feedback';
       feedback.textContent = 'Incorrect answer';
 
-      wrapper.append(label, input, feedback);
+      wrapper.append(label);
+
+      if (task.hint) {
+        const hint = document.createElement('div');
+        hint.className = 'form-text text-muted';
+        hint.textContent = task.hint;
+        wrapper.appendChild(hint);
+      }
+
+      wrapper.append(input, feedback);
       this.formEl.appendChild(wrapper);
     });
 

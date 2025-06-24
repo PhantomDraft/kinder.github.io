@@ -100,7 +100,8 @@ function genAdvanced() {
   // 4) Minimal three-digit number
   t.push({
     text: `Наименьшее трёхзначное число.`,
-    dataAnswer: `100`
+    dataAnswer: `100`,
+    hint: `Пример записи: 4+6=10, затем +1=11`
   });
 
   // 5) Simple addition
@@ -131,7 +132,8 @@ function genAdvanced() {
   const D1 = randInt(1, 10);
   t.push({
     text: `Купили ${D1} тетрадей в клетку, а в линейку – на 1 больше. Сколько тетрадей купили всего?`,
-    dataAnswer: `${D1 + (D1 + 1)}`
+    dataAnswer: `${D1 + (D1 + 1)}`,
+    hint: `Пример записи: наименьшее – 2; наибольшее – 18`
   });
 
   // 9) Correct arithmetic sign
@@ -159,7 +161,8 @@ function genAdvanced() {
   const G1 = randInt(1, 10), H1 = randInt(1, 5);
   t.push({
     text: `Заполни пропуски: ${G1}, ___, ${G1 + 2 * H1}, ___, ${G1 + 4 * H1}, если каждое число увеличивается на ${H1}.`,
-    dataAnswer: `${G1 + H1}, ${G1 + 3 * H1}`
+    dataAnswer: `${G1 + H1}, ${G1 + 3 * H1}`,
+    hint: `Пример записи: 18; оно делится на 2 без остатка`
   });
 
   // 12) Mental addition strategy
@@ -168,7 +171,8 @@ function genAdvanced() {
   const I2 = delta + randInt(1, 8);
   t.push({
     text: `Как быстро вычислить сумму ${I1} + ${I2}, если сначала довести ${I1} до круглого числа? Опиши алгоритм.`,
-    dataAnswer: `${I1}+${delta}=${I1 + delta}, затем +${I2 - delta}=${I1 + I2}`
+    dataAnswer: `${I1}+${delta}=${I1 + delta}, затем +${I2 - delta}=${I1 + I2}`,
+    hint: `Пример записи: 9; 8+1=9`
   });
 
   // 13) Odd one out in sequence
@@ -192,7 +196,8 @@ function genAdvanced() {
   const L1 = randInt(1, 10), K2 = randInt(1, 9);
   t.push({
     text: `У Кати на ${K2} предмета больше, чем у Васи. Если у Васи ${L1}, сколько у Кати? Как записать?`,
-    dataAnswer: `${L1 + K2}; ${L1}+${K2}=${L1 + K2}`
+    dataAnswer: `${L1 + K2}; ${L1}+${K2}=${L1 + K2}`,
+    hint: `Пример записи: 35; остальные с шагом 5`
   });
 
   return t;
