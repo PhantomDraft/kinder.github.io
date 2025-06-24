@@ -8,26 +8,47 @@ import { Worksheet } from './worksheet.js';
 function genStandard() {
   const t = [];
   // 1) Sum of two one-digit
-  const X = randInt(1,9), Y = randInt(1,9);
-  t.push({ text:`Первое слагаемое ${X}, второе слагаемое ${Y}. Запиши сумму.`, dataAnswer:`${X+Y}` });
+  const X = randInt(1, 9), Y = randInt(1, 9);
+  t.push({
+    text: `Первое слагаемое ${X}, второе слагаемое ${Y}. Запиши сумму.`,
+    dataAnswer: `${X + Y}`
+  });
   // 2) Tens/units
-  const A = randInt(1,9), B = randInt(0,9);
-  t.push({ text:`Запиши число, в котором ${A} десятков и ${B} единиц.`, dataAnswer:`${A*10+B}` });
+  const A = randInt(1, 9), B = randInt(0, 9);
+  t.push({
+    text: `Запиши число, в котором ${A} десятков и ${B} единиц.`,
+    dataAnswer: `${A * 10 + B}`
+  });
   // 3) Increment
-  const C = randInt(1,20), D = randInt(1,10);
-  t.push({ text:`Число ${C} увеличь на ${D}.`, dataAnswer:`${C+D}` });
+  const C = randInt(1, 20), D = randInt(1, 10);
+  t.push({
+    text: `Число ${C} увеличь на ${D}.`,
+    dataAnswer: `${C + D}`
+  });
   // 4) Roles subtraction
-  const E = randInt(5,20), F = randInt(1,E-1);
-  t.push({ text:`Уменьшаемое ${E}, вычитаемое ${F}. Запиши разность.`, dataAnswer:`${E-F}` });
+  const E = randInt(5, 20), F = randInt(1, E - 1);
+  t.push({
+    text: `Уменьшаемое ${E}, вычитаемое ${F}. Запиши разность.`,
+    dataAnswer: `${E - F}`
+  });
   // 5) Neighbors
-  const G = randInt(2,98);
-  t.push({ text:`Запиши соседей числа ${G}.`, dataAnswer:`${G-1}, ${G+1}` });
+  const G = randInt(2, 98);
+  t.push({
+    text: `Запиши соседей числа ${G}.`,
+    dataAnswer: `${G - 1}, ${G + 1}`
+  });
   // 6) Smallest two-digit
-  t.push({ text:`Наименьшее двузначное число.`, dataAnswer:`10` });
+  t.push({
+    text: `Наименьшее двузначное число.`,
+    dataAnswer: `10`
+  });
   // 7) Subtract+add
-  const H = randInt(20,99), I = randInt(1,9), J = randInt(1,9);
-  t.push({ text:`К разности двузначных чисел ${H} и ${I} прибавь ${J}.`, dataAnswer:`${H-I+J}` });
-  // 8) Missing addend (both K and M are single-digit)
+  const H = randInt(20, 99), I = randInt(1, 9), J = randInt(1, 9);
+  t.push({
+    text: `К разности двузначных чисел ${H} и ${I} прибавь ${J}.`,
+    dataAnswer: `${H - I + J}`
+  });
+  // 8) Missing addend
   const K = randInt(1, 9);
   const L = randInt(K + 1, 18);
   t.push({
@@ -35,20 +56,21 @@ function genStandard() {
     dataAnswer: `${L - K}`
   });
   // 9) Time add
-  const sec = randInt(1,59);
-  const h = randInt(0,23), m = randInt(0,59), s = randInt(0,59);
-  const now = new Date(); now.setHours(h,m,s);
-  const later = new Date(now.getTime()+sec*1000);
-  const pad = n => String(n).padStart(2,'0');
+  const sec = randInt(1, 59);
+  const h = randInt(0, 23), m = randInt(0, 59), s = randInt(0, 59);
+  const now = new Date();
+  now.setHours(h, m, s);
+  const later = new Date(now.getTime() + sec * 1000);
+  const pad = n => String(n).padStart(2, '0');
   t.push({
-    text:`Если игра начнётся через ${sec} секунд, а текущее время ${pad(h)}:${pad(m)}:${pad(s)}, во сколько стартует игра?`,
-    dataAnswer:`${pad(later.getHours())}:${pad(later.getMinutes())}:${pad(later.getSeconds())}`
+    text: `Если игра начнётся через ${sec} секунд, а текущее время ${pad(h)}:${pad(m)}:${pad(s)}, во сколько стартует игра?`,
+    dataAnswer: `${pad(later.getHours())}:${pad(later.getMinutes())}:${pad(later.getSeconds())}`
   });
   return t;
 }
 
 /**
- * Advanced-config generators for each screen
+ * Advanced-config generator for the “Дополнительно” screen
  * Returns an array of { text, dataAnswer } with appropriate random ranges
  */
 function genAdvanced() {
@@ -123,7 +145,10 @@ function genAdvanced() {
 
   // 10) Evenness check
   const Fe = 2 * randInt(1, 9);
-  let Fo; do { Fo = randInt(1, 19); } while (Fo % 2 === 0);
+  let Fo;
+  do {
+    Fo = randInt(1, 19);
+  } while (Fo % 2 === 0);
   const F3 = randInt(1, 9) * 2;
   t.push({
     text: `Определи, какое из чисел ${Fe}, ${Fo}, ${F3} является чётным. Какой признак?`,
@@ -174,12 +199,14 @@ function genAdvanced() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize worksheets
   const standardSheet = new Worksheet('standardForm', 'checkStandard', () => {
     document.getElementById('advanced-tab').removeAttribute('disabled');
     new bootstrap.Tab(document.getElementById('advanced-tab')).show();
   });
   const advancedSheet = new Worksheet('advancedForm', 'checkAdvanced');
 
+  // Config file loader
   document.getElementById('configFileInput').addEventListener('change', e => {
     const f = e.target.files[0];
     if (!f) return alert('Файл не выбран.');
@@ -190,7 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!cfg.standard || !cfg.advanced) {
           return alert('Неверный формат конфигурации.');
         }
-        shuffle(cfg.standard); shuffle(cfg.advanced);
+        shuffle(cfg.standard);
+        shuffle(cfg.advanced);
         standardSheet.load(cfg.standard);
         advancedSheet.load(cfg.advanced);
         alert('Конфигурация загружена.');
@@ -201,32 +229,32 @@ document.addEventListener('DOMContentLoaded', () => {
     r.readAsText(f);
   });
 
-  // In app.js, update your “Default Config” button handler to *first* call the generators:
+  // Default Config button handler
   document.getElementById('loadDefault').addEventListener('click', () => {
-    // 1) Generate the default arrays
+    // 1) Generate default arrays
     const std = genStandard();
     const adv = genAdvanced();
 
-    // 2) Shuffle and load both standard and advanced exercises
+    // 2) Shuffle and load
     shuffle(std);
     shuffle(adv);
     standardSheet.load(std);
     advancedSheet.load(adv);
 
-    // 3) Enable and show the “Advanced” tab
+    // 3) Enable & show the “Advanced” tab
     const advTabBtn = document.getElementById('advanced-tab');
     advTabBtn.removeAttribute('disabled');
     new bootstrap.Tab(advTabBtn).show();
 
-    // 4) Scroll the tab list into view
+    // 4) Scroll tab list into view
     document.getElementById('taskTabs')
       .scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-    // 5) Briefly highlight the “Advanced” tab
+    // 5) Highlight the “Advanced” tab briefly
     advTabBtn.classList.add('highlight');
     setTimeout(() => advTabBtn.classList.remove('highlight'), 1000);
 
-    // 6) Notify the user
+    // 6) Final alert
     alert('Используется стандартная конфигурация.');
   });
 });

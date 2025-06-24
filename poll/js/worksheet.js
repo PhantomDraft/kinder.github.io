@@ -13,6 +13,10 @@ export class Worksheet {
     this.formEl = document.getElementById(formId);
     this.btn   = document.getElementById(buttonId);
     this.onSuccess = onSuccess;
+
+    // Disable check button until all inputs are filled
+    this.btn.disabled = true;
+
     this.btn.addEventListener('click', () => {
       if (this.checkAll()) {
         alert('Все ответы верные!');
@@ -33,7 +37,7 @@ export class Worksheet {
       const label = document.createElement('label');
       label.className = 'form-label';
       label.htmlFor = `${this.formEl.id}_${i}`;
-      label.textContent = `${i+1}. ${task.text}`;
+      label.textContent = `${i + 1}. ${task.text}`;
 
       const input = document.createElement('input');
       input.type = 'text';
@@ -51,6 +55,8 @@ export class Worksheet {
 
       // Live validation
       input.addEventListener('blur', () => this.validate(input));
+      // Enable/disable check button on each input change
+      input.addEventListener('input', () => this.toggleCheckButton());
 
       const feedback = document.createElement('div');
       feedback.className = 'invalid-feedback';
@@ -59,6 +65,9 @@ export class Worksheet {
       wrapper.append(label, input, feedback);
       this.formEl.appendChild(wrapper);
     });
+
+    // After rendering, ensure button is disabled until fields are filled
+    this.btn.disabled = true;
   }
 
   /** Validate single input */
@@ -68,19 +77,16 @@ export class Worksheet {
     let ok;
 
     if (correctAnswer.includes(',')) {
-      // let's wait for at least one comma before we validate
       if (!userAnswer.includes(',')) {
         input.classList.remove('is-valid');
         input.classList.remove('is-invalid');
         return false;
       }
-      // compare arrays
       const correctArr = correctAnswer.split(',').map(s => s.trim());
       const userArr    = userAnswer.split(',').map(s => s.trim());
       ok = correctArr.length === userArr.length
         && correctArr.every((v, i) => v === userArr[i]);
     } else {
-      // single response
       ok = (userAnswer === correctAnswer);
     }
 
@@ -93,5 +99,12 @@ export class Worksheet {
   checkAll() {
     const inputs = this.formEl.querySelectorAll('input[data-answer]');
     return Array.from(inputs).every(input => this.validate(input));
+  }
+
+  /** Enable the check button only when all fields are non-empty */
+  toggleCheckButton() {
+    const inputs = this.formEl.querySelectorAll('input[data-answer]');
+    const allFilled = Array.from(inputs).every(input => input.value.trim() !== '');
+    this.btn.disabled = !allFilled;
   }
 }
