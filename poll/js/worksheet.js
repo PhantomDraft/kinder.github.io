@@ -15,10 +15,10 @@ export class Worksheet {
     this.onSuccess = onSuccess;
     this.btn.addEventListener('click', () => {
       if (this.checkAll()) {
-        alert('All answers correct!');
+        alert('Все ответы верные!');
         if (this.onSuccess) this.onSuccess();
       } else {
-        alert('Some answers are incorrect. Please review.');
+        alert('Некоторые ответы неверны. Пожалуйста, просмотрите.');
       }
     });
   }
@@ -68,19 +68,19 @@ export class Worksheet {
     let ok;
 
     if (correctAnswer.includes(',')) {
-      // дождёмся хотя бы одной запятой, прежде чем валидировать
+      // let's wait for at least one comma before we validate
       if (!userAnswer.includes(',')) {
         input.classList.remove('is-valid');
         input.classList.remove('is-invalid');
         return false;
       }
-      // сравниваем массивы
+      // compare arrays
       const correctArr = correctAnswer.split(',').map(s => s.trim());
       const userArr    = userAnswer.split(',').map(s => s.trim());
       ok = correctArr.length === userArr.length
         && correctArr.every((v, i) => v === userArr[i]);
     } else {
-      // одиночный ответ
+      // single response
       ok = (userAnswer === correctAnswer);
     }
 

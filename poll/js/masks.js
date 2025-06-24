@@ -1,7 +1,6 @@
 /**
  * Input masks: TimeMask formats as HH:MM:SS, CommaMask splits numbers by comma+space
  */
-
 class InputMask {
   constructor(input) { this.input = input; }
   attach() {}

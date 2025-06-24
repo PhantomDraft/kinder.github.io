@@ -1,3 +1,4 @@
+// File: js\app.js
 import { randInt, shuffle } from './utils.js';
 import { Worksheet } from './worksheet.js';
 
@@ -169,32 +170,200 @@ document.addEventListener('DOMContentLoaded', () => {
     r.readAsText(f);
   });
 
-  // In your app.js, update the click handler for the “Default Config” button as follows:
   document.getElementById('loadDefault').addEventListener('click', () => {
-    // 1) Shuffle and load both standard and advanced exercises
-    shuffle(std);
-    shuffle(adv);
+    const std = genStandard();
+    const adv = genAdvanced();
+    shuffle(std); shuffle(adv);
     standardSheet.load(std);
     advancedSheet.load(adv);
-
-    // 2) Enable the “Advanced” tab button
-    const advTabBtn = document.getElementById('advanced-tab');
-    advTabBtn.removeAttribute('disabled');
-
-    // 3) Immediately show the “Advanced” tab
-    new bootstrap.Tab(advTabBtn).show();
-
-    // 4) Scroll the tab list into view
-    document.getElementById('taskTabs')
-      .scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    // 5) Briefly highlight the “Advanced” tab to draw attention
-    advTabBtn.classList.add('highlight');
-    setTimeout(() => {
-      advTabBtn.classList.remove('highlight');
-    }, 1000);
-
-    // 6) Notify the user that defaults are loaded
-    alert('Используется стандартная конфигурация.');
+    alert('Генерируемые по умолчанию задания.');
   });
 });
+
+// File: js\masks.js
+/**
+ * Input masks: TimeMask formats as HH:MM:SS, CommaMask splits numbers by comma+space
+ */
+class InputMask {
+  constructor(input) { this.input = input; }
+  attach() {}
+}
+
+export class TimeMask extends InputMask {
+  attach() {
+    this.input.addEventListener('input', () => {
+      const pos = this.input.selectionStart;
+      const oldLen = this.input.value.length;
+      let d = this.input.value.replace(/\D/g, '').slice(0,6);
+      const parts = [];
+      if (d.length >= 2) {
+        parts.push(d.slice(0,2));
+        if (d.length >= 4) {
+          parts.push(d.slice(2,4));
+          if (d.length > 4) parts.push(d.slice(4));
+        } else {
+          parts.push(d.slice(2));
+        }
+      } else {
+        parts.push(d);
+      }
+      this.input.value = parts.join(':');
+      const newLen = this.input.value.length;
+      this.input.selectionStart = this.input.selectionEnd = pos + (newLen - oldLen);
+    });
+  }
+}
+
+export class CommaMask extends InputMask {
+  attach() {
+    // calculate length of first correct part
+    const correct = this.input.getAttribute('data-answer') || '';
+    const firstLen = (correct.split(',')[0]||'').trim().length;
+
+    this.input.addEventListener('input', () => {
+      const pos = this.input.selectionStart;
+      const oldLen = this.input.value.length;
+
+      // keep only digits and commas
+      let val = this.input.value.replace(/[^\d,]/g, '');
+
+      // split & trim
+      const rawParts = val.split(',');
+      let parts = rawParts.map(s => s.trim());
+
+      // if user has just typed exactly firstLen digits and hasn't typed comma yet,
+      // auto-insert comma segment
+      if (!val.includes(',') && val.length === firstLen) {
+        parts = [ parts[0], '' ];
+      }
+
+      // if they did type a comma at end, preserve empty second segment
+      if (val.endsWith(',')) {
+        parts = parts.length === 1 ? [ parts[0], '' ] : parts;
+      }
+
+      this.input.value = parts.join(', ');
+
+      const newLen = this.input.value.length;
+      this.input.selectionStart = this.input.selectionEnd = pos + (newLen - oldLen);
+    });
+  }
+}
+
+// File: js\utils.js
+/**
+ * Utility functions
+ */
+
+/** Returns integer between min and max inclusive */
+export function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/** Fisher–Yates shuffle */
+export function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = randInt(0, i);
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+// File: js\worksheet.js
+import { TimeMask, CommaMask } from './masks.js';
+
+/**
+ * Worksheet handles rendering, masking, validation and checking
+ */
+export class Worksheet {
+  /**
+   * @param {string} formId
+   * @param {string} buttonId
+   * @param {Function|null} onSuccess
+   */
+  constructor(formId, buttonId, onSuccess = null) {
+    this.formEl = document.getElementById(formId);
+    this.btn   = document.getElementById(buttonId);
+    this.onSuccess = onSuccess;
+    this.btn.addEventListener('click', () => {
+      if (this.checkAll()) {
+        alert('Все ответы верные!');
+        if (this.onSuccess) this.onSuccess();
+      } else {
+        alert('Некоторые ответы неверны. Пожалуйста, просмотрите.');
+      }
+    });
+  }
+
+  /** Renders tasks: [{text, dataAnswer}] */
+  load(tasks) {
+    this.formEl.innerHTML = '';
+    tasks.forEach((task, i) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'mb-3';
+
+      const label = document.createElement('label');
+      label.className = 'form-label';
+      label.htmlFor = `${this.formEl.id}_${i}`;
+      label.textContent = `${i+1}. ${task.text}`;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'form-control';
+      input.id = `${this.formEl.id}_${i}`;
+      input.setAttribute('data-answer', task.dataAnswer);
+      input.placeholder = 'Enter answer here';
+
+      // Attach masks
+      if (task.dataAnswer.includes(':')) {
+        new TimeMask(input).attach();
+      } else if (task.dataAnswer.includes(',')) {
+        new CommaMask(input).attach();
+      }
+
+      // Live validation
+      input.addEventListener('blur', () => this.validate(input));
+
+      const feedback = document.createElement('div');
+      feedback.className = 'invalid-feedback';
+      feedback.textContent = 'Incorrect answer';
+
+      wrapper.append(label, input, feedback);
+      this.formEl.appendChild(wrapper);
+    });
+  }
+
+  /** Validate single input */
+  validate(input) {
+    const userAnswer    = input.value.trim();
+    const correctAnswer = input.getAttribute('data-answer').trim();
+    let ok;
+
+    if (correctAnswer.includes(',')) {
+      // let's wait for at least one comma before we validate
+      if (!userAnswer.includes(',')) {
+        input.classList.remove('is-valid');
+        input.classList.remove('is-invalid');
+        return false;
+      }
+      // compare arrays
+      const correctArr = correctAnswer.split(',').map(s => s.trim());
+      const userArr    = userAnswer.split(',').map(s => s.trim());
+      ok = correctArr.length === userArr.length
+        && correctArr.every((v, i) => v === userArr[i]);
+    } else {
+      // single response
+      ok = (userAnswer === correctAnswer);
+    }
+
+    input.classList.toggle('is-valid', ok);
+    input.classList.toggle('is-invalid', !ok);
+    return ok;
+  }
+
+  /** Check all fields */
+  checkAll() {
+    const inputs = this.formEl.querySelectorAll('input[data-answer]');
+    return Array.from(inputs).every(input => this.validate(input));
+  }
+}
