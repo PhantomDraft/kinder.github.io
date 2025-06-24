@@ -201,19 +201,21 @@ document.addEventListener('DOMContentLoaded', () => {
     r.readAsText(f);
   });
 
-  // In your app.js, update the click handler for the “Default Config” button as follows:
+  // In your app.js, fix the “Default Config” click handler by first generating the arrays:
   document.getElementById('loadDefault').addEventListener('click', () => {
-    // 1) Shuffle and load both standard and advanced exercises
+    // 1) Generate default tasks for both tabs
+    const std = genStandard();
+    const adv = genAdvanced();
+
+    // 2) Shuffle and load both standard and advanced exercises
     shuffle(std);
     shuffle(adv);
     standardSheet.load(std);
     advancedSheet.load(adv);
 
-    // 2) Enable the “Advanced” tab button
+    // 3) Enable and immediately show the “Advanced” tab
     const advTabBtn = document.getElementById('advanced-tab');
     advTabBtn.removeAttribute('disabled');
-
-    // 3) Immediately show the “Advanced” tab
     new bootstrap.Tab(advTabBtn).show();
 
     // 4) Scroll the tab list into view
@@ -222,9 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5) Briefly highlight the “Advanced” tab to draw attention
     advTabBtn.classList.add('highlight');
-    setTimeout(() => {
-      advTabBtn.classList.remove('highlight');
-    }, 1000);
+    setTimeout(() => advTabBtn.classList.remove('highlight'), 1000);
 
     // 6) Notify the user that defaults are loaded
     alert('Используется стандартная конфигурация.');
