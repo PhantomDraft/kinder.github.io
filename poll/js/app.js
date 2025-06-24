@@ -201,8 +201,15 @@ function genAdvanced() {
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize worksheets
   const standardSheet = new Worksheet('standardForm', 'checkStandard', () => {
-    document.getElementById('advanced-tab').removeAttribute('disabled');
-    new bootstrap.Tab(document.getElementById('advanced-tab')).show();
+    const advTabBtn = document.getElementById('advanced-tab');
+    advTabBtn.removeAttribute('disabled');                    // разблокировать вкладку
+    new bootstrap.Tab(advTabBtn).show();                      // переключиться на неё
+    document.getElementById('taskTabs').scrollIntoView({      // прокрутить к вкладкам
+      behavior: 'smooth',
+      block: 'start'
+    });
+    advTabBtn.classList.add('highlight');                     // подсветить
+    setTimeout(() => advTabBtn.classList.remove('highlight'), 1000);
   });
   const advancedSheet = new Worksheet('advancedForm', 'checkAdvanced');
 
@@ -235,26 +242,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const std = genStandard();
     const adv = genAdvanced();
 
-    // 2) Shuffle and load
+    // 2) Shuffle and load into standard and advanced forms
     shuffle(std);
     shuffle(adv);
     standardSheet.load(std);
     advancedSheet.load(adv);
 
-    // 3) Enable & show the “Advanced” tab
-    const advTabBtn = document.getElementById('advanced-tab');
-    advTabBtn.removeAttribute('disabled');
-    new bootstrap.Tab(advTabBtn).show();
-
-    // 4) Scroll tab list into view
-    document.getElementById('taskTabs')
-      .scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    // 5) Highlight the “Advanced” tab briefly
-    advTabBtn.classList.add('highlight');
-    setTimeout(() => advTabBtn.classList.remove('highlight'), 1000);
-
-    // 6) Final alert
-    alert('Используется стандартная конфигурация.');
+    // 3) Остаёмся на вкладке Standard и просим сначала решить её
+    document.getElementById('standard-tab').click();
+    alert('Загружена стандартная конфигурация. Сначала решите и проверьте её.');
   });
 });
