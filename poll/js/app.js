@@ -71,7 +71,7 @@ function genStandard() {
 
 /**
  * Advanced-config generator for the “Дополнительно” screen
- * Returns an array of { text, dataAnswer } with appropriate random ranges
+ * Returns an array of { text, dataAnswer, answerParts? } with appropriate random ranges
  */
 function genAdvanced() {
   const t = [];
@@ -100,8 +100,7 @@ function genAdvanced() {
   // 4) Minimal three-digit number
   t.push({
     text: `Наименьшее трёхзначное число.`,
-    dataAnswer: `100`,
-    hint: `Пример записи: 4+6=10, затем +1=11`
+    dataAnswer: `100`
   });
 
   // 5) Simple addition
@@ -111,29 +110,31 @@ function genAdvanced() {
     dataAnswer: `${V + W}`
   });
 
-  // 6) Series fill
+  // 6) Series fill (next term)
   const X1 = randInt(1, 20), Y1 = randInt(1, 5);
   t.push({
     text: `Последовательность: ${X1}, ___, ${X1 + 2 * Y1}, ___, ${X1 + 4 * Y1}. Какое число идёт после ${X1} при прибавлении ${Y1}?`,
     dataAnswer: `${X1 + Y1}`
   });
 
-  // 7) Compare three
+  // 7) Compare three numbers (min/max) – split into two inputs
   let set = new Set();
   while (set.size < 3) set.add(randInt(1, 20));
   const [C1, C2, C3] = [...set];
   const lo = Math.min(C1, C2, C3), hi = Math.max(C1, C2, C3);
   t.push({
     text: `Даны числа: ${C1}, ${C2}, ${C3}. Какое из них наименьшее, а какое – наибольшее?`,
-    dataAnswer: `наименьшее – ${lo}; наибольшее – ${hi}`
+    answerParts: [
+      { beforeText: 'Наименьшее – ', correct: `${lo}`, placeholder: `${lo}` },
+      { beforeText: ', наибольшее – ', correct: `${hi}`, placeholder: `${hi}` }
+    ]
   });
 
   // 8) Notebooks situational
   const D1 = randInt(1, 10);
   t.push({
     text: `Купили ${D1} тетрадей в клетку, а в линейку – на 1 больше. Сколько тетрадей купили всего?`,
-    dataAnswer: `${D1 + (D1 + 1)}`,
-    hint: `Пример записи: наименьшее – 2; наибольшее – 18`
+    dataAnswer: `${D1 + (D1 + 1)}`
   });
 
   // 9) Correct arithmetic sign
@@ -145,45 +146,53 @@ function genAdvanced() {
     dataAnswer: sign
   });
 
-  // 10) Evenness check
+  // 10) Evenness check – split into number and explanation
   const Fe = 2 * randInt(1, 9);
   let Fo;
-  do {
-    Fo = randInt(1, 19);
-  } while (Fo % 2 === 0);
+  do { Fo = randInt(1, 19); } while (Fo % 2 === 0);
   const F3 = randInt(1, 9) * 2;
   t.push({
     text: `Определи, какое из чисел ${Fe}, ${Fo}, ${F3} является чётным. Какой признак?`,
-    dataAnswer: `${Fe}; оно делится на 2 без остатка`
+    answerParts: [
+      { beforeText: '', correct: `${Fe}`, placeholder: `${Fe}` },
+      { beforeText: ' (признак: ', correct: 'оно делится на 2 без остатка', placeholder: 'делится на 2 без остатка', afterText: ')' }
+    ]
   });
 
-  // 11) Counting by steps
+  // 11) Counting by steps – two inline blanks
   const G1 = randInt(1, 10), H1 = randInt(1, 5);
   t.push({
     text: `Заполни пропуски: ${G1}, ___, ${G1 + 2 * H1}, ___, ${G1 + 4 * H1}, если каждое число увеличивается на ${H1}.`,
-    dataAnswer: `${G1 + H1}, ${G1 + 3 * H1}`,
-    hint: `Пример записи: 18; оно делится на 2 без остатка`
+    answerParts: [
+      { beforeText: '', correct: `${G1 + H1}`, placeholder: `${G1 + H1}` },
+      { beforeText: ', ', correct: `${G1 + 3 * H1}`, placeholder: `${G1 + 3 * H1}` }
+    ]
   });
 
-  // 12) Mental addition strategy
+  // 12) Mental addition strategy – two inline parts
   const I1 = randInt(1, 9);
   const delta = 10 - (I1 % 10);
   const I2 = delta + randInt(1, 8);
   t.push({
     text: `Как быстро вычислить сумму ${I1} + ${I2}, если сначала довести ${I1} до круглого числа? Опиши алгоритм.`,
-    dataAnswer: `${I1}+${delta}=${I1 + delta}, затем +${I2 - delta}=${I1 + I2}`,
-    hint: `Пример записи: 9; 8+1=9`
+    answerParts: [
+      { beforeText: '', correct: `${I1}+${delta}=${I1 + delta}`, placeholder: `${I1}+${delta}=${I1 + delta}` },
+      { beforeText: ', затем +', correct: `${I2 - delta}=${I1 + I2}`, placeholder: `${I2 - delta}=${I1 + I2}` }
+    ]
   });
 
-  // 13) Odd one out in sequence
+  // 13) Odd one out – number and reasoning
   const base = randInt(1, 10), step = randInt(1, 5);
-  const seq = [0,1,2,3,4].map(i => base + i * step);
+  const seq = [0, 1, 2, 3, 4].map(i => base + i * step);
   const idx = randInt(0, 4);
   const wrong = seq[idx] + step + 1;
   seq[idx] = wrong;
   t.push({
     text: `В последовательности: ${seq.join(', ')} одно число выбивается. Найди лишнее и обоснуй.`,
-    dataAnswer: `${wrong}; остальные с шагом ${step}`
+    answerParts: [
+      { beforeText: '', correct: `${wrong}`, placeholder: `${wrong}` },
+      { beforeText: ' (остальные с шагом ', correct: `${step}`, placeholder: `${step}`, afterText: ')' }
+    ]
   });
 
   // 14) Compare figures
@@ -196,8 +205,7 @@ function genAdvanced() {
   const L1 = randInt(1, 10), K2 = randInt(1, 9);
   t.push({
     text: `У Кати на ${K2} предмета больше, чем у Васи. Если у Васи ${L1}, сколько у Кати? Как записать?`,
-    dataAnswer: `${L1 + K2}; ${L1}+${K2}=${L1 + K2}`,
-    hint: `Пример записи: 35; остальные с шагом 5`
+    dataAnswer: `${L1 + K2}; ${L1}+${K2}=${L1 + K2}`
   });
 
   return t;
