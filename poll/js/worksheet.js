@@ -129,7 +129,7 @@ export class Worksheet {
         } else if (task.dataAnswer.includes(',')) {
           new CommaMask(input).attach();
         }
-        input.placeholder = 'Enter answer here';
+        input.placeholder = '';
         input.addEventListener('blur', () => this.validate(input));
         input.addEventListener('input', () => this.toggleCheckButton());
         wrapper.appendChild(input);
@@ -163,6 +163,10 @@ export class Worksheet {
       box.classList.toggle('is-valid', ok);
       box.classList.toggle('is-invalid', !ok);
     });
+    const feedback = wrapper.querySelector('.invalid-feedback');
+    if (feedback) {
+      feedback.style.display = ok ? 'none' : 'block';
+    }
     return ok;
   }
 

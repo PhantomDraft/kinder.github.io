@@ -8,25 +8,29 @@ class InputMask {
 
 export class TimeMask extends InputMask {
   attach() {
-    this.input.addEventListener('input', () => {
+    let prevDigits = 0;
+    this.input.addEventListener('input', e => {
       const pos = this.input.selectionStart;
       const oldLen = this.input.value.length;
+      const deleting = e.inputType === 'deleteContentBackward';
+
       let d = this.input.value.replace(/\D/g, '').slice(0,6);
-      const parts = [];
-      if (d.length >= 2) {
-        parts.push(d.slice(0,2));
-        if (d.length >= 4) {
-          parts.push(d.slice(2,4));
-          if (d.length > 4) parts.push(d.slice(4));
-        } else {
-          parts.push(d.slice(2));
-        }
+      let result = '';
+
+      if (d.length <= 2) {
+        result = d;
+        if (d.length === 2 && !deleting && prevDigits < d.length) result += ':';
+      } else if (d.length <= 4) {
+        result = d.slice(0,2) + ':' + d.slice(2);
+        if (d.length === 4 && !deleting && prevDigits < d.length) result += ':';
       } else {
-        parts.push(d);
+        result = d.slice(0,2) + ':' + d.slice(2,4) + ':' + d.slice(4);
       }
-      this.input.value = parts.join(':');
+
+      this.input.value = result;
       const newLen = this.input.value.length;
       this.input.selectionStart = this.input.selectionEnd = pos + (newLen - oldLen);
+      prevDigits = d.length;
     });
   }
 }
@@ -37,9 +41,12 @@ export class CommaMask extends InputMask {
     const correct = this.input.getAttribute('data-answer') || '';
     const firstLen = (correct.split(',')[0]||'').trim().length;
 
-    this.input.addEventListener('input', () => {
+    let last = '';
+
+    this.input.addEventListener('input', e => {
       const pos = this.input.selectionStart;
       const oldLen = this.input.value.length;
+      const increasing = this.input.value.length > last.length && e.inputType !== 'deleteContentBackward';
 
       // keep only digits and commas
       let val = this.input.value.replace(/[^\d,]/g, '');
@@ -50,7 +57,7 @@ export class CommaMask extends InputMask {
 
       // if user has just typed exactly firstLen digits and hasn't typed comma yet,
       // auto-insert comma segment
-      if (!val.includes(',') && val.length === firstLen) {
+      if (!val.includes(',') && val.length === firstLen && increasing) {
         parts = [ parts[0], '' ];
       }
 
@@ -59,10 +66,15 @@ export class CommaMask extends InputMask {
         parts = parts.length === 1 ? [ parts[0], '' ] : parts;
       }
 
+      if (val.length < firstLen) {
+        parts = [ parts[0] ];
+      }
+
       this.input.value = parts.join(', ');
 
       const newLen = this.input.value.length;
       this.input.selectionStart = this.input.selectionEnd = pos + (newLen - oldLen);
+      last = this.input.value;
     });
   }
 }
