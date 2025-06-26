@@ -90,7 +90,7 @@ export class Worksheet {
         input.className = 'form-control d-inline-block mx-1';
         input.style.width = 'auto';
         input.id = `${this.formEl.id}_${i}_${ansIdx}`;
-        input.setAttribute('data-answer', answers[ansIdx] || '');
+        input.placeholder = answers[ansIdx] || '';
         if ((answers[ansIdx] || '').includes(':')) {
           new TimeMask(input).attach();
         } else if ((answers[ansIdx] || '').includes(',')) {
@@ -155,18 +155,27 @@ export class Worksheet {
   validateCheckboxGroup(wrapper) {
     const boxes = wrapper.querySelectorAll('input[type="checkbox"]');
     let ok = true;
+
+    // First pass: figure out overall correctness
     boxes.forEach(box => {
-      const should = box.dataset.correct === 'true';
-      if (box.checked !== should) ok = false;
+      const shouldBeChecked = box.dataset.correct === 'true';
+      if (box.checked !== shouldBeChecked) ok = false;
     });
+
+    // Second pass: style each box only if they actually clicked it
     boxes.forEach(box => {
-      box.classList.toggle('is-valid', ok);
-      box.classList.toggle('is-invalid', !ok);
+      const shouldBeChecked = box.dataset.correct === 'true';
+      // correct & checked → green, incorrect & checked → red
+      box.classList.toggle('is-valid', box.checked && shouldBeChecked);
+      box.classList.toggle('is-invalid', box.checked && !shouldBeChecked);
     });
+
+    // show or hide the “Incorrect answer” message
     const feedback = wrapper.querySelector('.invalid-feedback');
     if (feedback) {
       feedback.style.display = ok ? 'none' : 'block';
     }
+
     return ok;
   }
 
