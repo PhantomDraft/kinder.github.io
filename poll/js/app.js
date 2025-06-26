@@ -124,8 +124,8 @@ function genAdvanced() {
   const [C1, C2, C3] = [...set];
   const lo = Math.min(C1, C2, C3), hi = Math.max(C1, C2, C3);
   t.push({
-    text: `Даны числа: ${C1}, ${C2}, ${C3}. Какое из них наименьшее, а какое – наибольшее?`,
-    dataAnswer: `наименьшее – ${lo}; наибольшее – ${hi}`
+    text: `Даны числа: ${C1}, ${C2}, ${C3}. Какое из них наименьшее, а какое – наибольшее?\nНаименьшее – ___\nНаибольшее – ___`,
+    dataAnswer: `${lo}; ${hi}`
   });
 
   // 8) Notebooks situational
@@ -153,16 +153,19 @@ function genAdvanced() {
   } while (Fo % 2 === 0);
   const F3 = randInt(1, 9) * 2;
   t.push({
-    text: `Определи, какое из чисел ${Fe}, ${Fo}, ${F3} является чётным. Какой признак?`,
-    dataAnswer: `${Fe}; оно делится на 2 без остатка`
+    text: `Какие из чисел ${Fe}, ${Fo}, ${F3} чётные?`,
+    options: [
+      { text: `${Fe}`, correct: true },
+      { text: `${Fo}`, correct: false },
+      { text: `${F3}`, correct: true }
+    ]
   });
 
   // 11) Counting by steps
   const G1 = randInt(1, 10), H1 = randInt(1, 5);
   t.push({
     text: `Заполни пропуски: ${G1}, ___, ${G1 + 2 * H1}, ___, ${G1 + 4 * H1}, если каждое число увеличивается на ${H1}.`,
-    dataAnswer: `${G1 + H1}, ${G1 + 3 * H1}`,
-    hint: `Пример записи: 18; оно делится на 2 без остатка`
+    dataAnswer: `${G1 + H1}, ${G1 + 3 * H1}`
   });
 
   // 12) Mental addition strategy
@@ -170,9 +173,8 @@ function genAdvanced() {
   const delta = 10 - (I1 % 10);
   const I2 = delta + randInt(1, 8);
   t.push({
-    text: `Как быстро вычислить сумму ${I1} + ${I2}, если сначала довести ${I1} до круглого числа? Опиши алгоритм.`,
-    dataAnswer: `${I1}+${delta}=${I1 + delta}, затем +${I2 - delta}=${I1 + I2}`,
-    hint: `Пример записи: 9; 8+1=9`
+    text: `Как быстро вычислить сумму ${I1} + ${I2}, если сначала довести ${I1} до круглого числа?\nЗапоминай\nДоводим число до ${I1 + delta}: ___\nТеперь прибавляем остаток: ___`,
+    dataAnswer: `${I1}+${delta}=${I1 + delta}; +${I2 - delta}=${I1 + I2}`
   });
 
   // 13) Odd one out in sequence
@@ -182,8 +184,8 @@ function genAdvanced() {
   const wrong = seq[idx] + step + 1;
   seq[idx] = wrong;
   t.push({
-    text: `В последовательности: ${seq.join(', ')} одно число выбивается. Найди лишнее и обоснуй.`,
-    dataAnswer: `${wrong}; остальные с шагом ${step}`
+    text: `В последовательности: ${seq.join(', ')} одно число выбивается. Найди лишнее.`,
+    options: seq.map(n => ({ text: `${n}`, correct: n === wrong }))
   });
 
   // 14) Compare figures
@@ -195,9 +197,8 @@ function genAdvanced() {
   // 15) “More than” problem
   const L1 = randInt(1, 10), K2 = randInt(1, 9);
   t.push({
-    text: `У Кати на ${K2} предмета больше, чем у Васи. Если у Васи ${L1}, сколько у Кати? Как записать?`,
-    dataAnswer: `${L1 + K2}; ${L1}+${K2}=${L1 + K2}`,
-    hint: `Пример записи: 35; остальные с шагом 5`
+    text: `У Кати на ${K2} предмета больше, чем у Васи. Если у Васи ${L1}, сколько у Кати?`,
+    dataAnswer: `${L1 + K2}`
   });
 
   return t;

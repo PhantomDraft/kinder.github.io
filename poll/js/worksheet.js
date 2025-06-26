@@ -27,42 +27,113 @@ export class Worksheet {
     });
   }
 
-  /** Renders tasks: [{text, dataAnswer}] */
+  /** Renders tasks: [{text, dataAnswer, options}] */
   load(tasks) {
     this.formEl.innerHTML = '';
     tasks.forEach((task, i) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'mb-3';
 
-      const label = document.createElement('label');
-      label.className = 'form-label';
-      label.htmlFor = `${this.formEl.id}_${i}`;
-      label.textContent = `${i + 1}. ${task.text}`;
+      // ----- Checkbox style -----
+      if (task.options) {
+        const q = document.createElement('div');
+        q.className = 'form-label';
+        q.textContent = `${i + 1}. ${task.text}`;
+        wrapper.appendChild(q);
 
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'form-control';
-      input.id = `${this.formEl.id}_${i}`;
-      input.setAttribute('data-answer', task.dataAnswer);
-      input.placeholder = 'Enter answer here';
+        const groupId = `${this.formEl.id}_${i}`;
+        wrapper.setAttribute('data-checkbox-group', groupId);
 
-      // Attach masks
-      if (task.dataAnswer.includes(':')) {
-        new TimeMask(input).attach();
-      } else if (task.dataAnswer.includes(',')) {
-        new CommaMask(input).attach();
+        task.options.forEach((opt, j) => {
+          const formCheck = document.createElement('div');
+          formCheck.className = 'form-check form-check-inline';
+
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.className = 'form-check-input';
+          cb.id = `${groupId}_${j}`;
+          cb.dataset.group = groupId;
+          if (opt.correct) cb.dataset.correct = 'true';
+          cb.addEventListener('change', () => {
+            this.validateCheckboxGroup(wrapper);
+            this.toggleCheckButton();
+          });
+
+          const lbl = document.createElement('label');
+          lbl.className = 'form-check-label';
+          lbl.htmlFor = cb.id;
+          lbl.textContent = opt.text || opt;
+
+          formCheck.append(cb, lbl);
+          wrapper.appendChild(formCheck);
+        });
+
+        const feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
+        feedback.textContent = 'Incorrect answer';
+        wrapper.appendChild(feedback);
+        this.formEl.appendChild(wrapper);
+        return;
       }
 
-      // Live validation
-      input.addEventListener('blur', () => this.validate(input));
-      // Enable/disable check button on each input change
-      input.addEventListener('input', () => this.toggleCheckButton());
+      // ----- Text input style -----
+      const label = document.createElement('label');
+      label.className = 'form-label';
+      label.htmlFor = `${this.formEl.id}_${i}_0`;
 
-      const feedback = document.createElement('div');
-      feedback.className = 'invalid-feedback';
-      feedback.textContent = 'Incorrect answer';
+      const answers = (task.dataAnswer || '').split(/[;,]/).map(s => s.trim());
+      let ansIdx = 0;
 
-      wrapper.append(label);
+      const addInput = () => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control d-inline-block mx-1';
+        input.style.width = 'auto';
+        input.id = `${this.formEl.id}_${i}_${ansIdx}`;
+        input.setAttribute('data-answer', answers[ansIdx] || '');
+        if ((answers[ansIdx] || '').includes(':')) {
+          new TimeMask(input).attach();
+        } else if ((answers[ansIdx] || '').includes(',')) {
+          new CommaMask(input).attach();
+        }
+        input.addEventListener('blur', () => this.validate(input));
+        input.addEventListener('input', () => this.toggleCheckButton());
+        ansIdx++;
+        return input;
+      };
+
+      const lines = task.text.split('\n');
+      lines.forEach((line, li) => {
+        if (li > 0) label.appendChild(document.createElement('br'));
+        const parts = line.split(/(_{2,})/);
+        parts.forEach(part => {
+          if (/^_{2,}$/.test(part)) {
+            label.appendChild(addInput());
+          } else {
+            label.appendChild(document.createTextNode(part));
+          }
+        });
+      });
+
+      wrapper.appendChild(label);
+
+      // If no placeholders were processed, append single input below
+      if (ansIdx === 0) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control';
+        input.id = `${this.formEl.id}_${i}_0`;
+        input.setAttribute('data-answer', task.dataAnswer);
+        if (task.dataAnswer.includes(':')) {
+          new TimeMask(input).attach();
+        } else if (task.dataAnswer.includes(',')) {
+          new CommaMask(input).attach();
+        }
+        input.placeholder = 'Enter answer here';
+        input.addEventListener('blur', () => this.validate(input));
+        input.addEventListener('input', () => this.toggleCheckButton());
+        wrapper.appendChild(input);
+      }
 
       if (task.hint) {
         const hint = document.createElement('div');
@@ -71,12 +142,28 @@ export class Worksheet {
         wrapper.appendChild(hint);
       }
 
-      wrapper.append(input, feedback);
+      const feedback = document.createElement('div');
+      feedback.className = 'invalid-feedback';
+      feedback.textContent = 'Incorrect answer';
+      wrapper.appendChild(feedback);
       this.formEl.appendChild(wrapper);
     });
 
-    // After rendering, ensure button is disabled until fields are filled
     this.btn.disabled = true;
+  }
+
+  validateCheckboxGroup(wrapper) {
+    const boxes = wrapper.querySelectorAll('input[type="checkbox"]');
+    let ok = true;
+    boxes.forEach(box => {
+      const should = box.dataset.correct === 'true';
+      if (box.checked !== should) ok = false;
+    });
+    boxes.forEach(box => {
+      box.classList.toggle('is-valid', ok);
+      box.classList.toggle('is-invalid', !ok);
+    });
+    return ok;
   }
 
   /** Validate single input */
@@ -106,14 +193,26 @@ export class Worksheet {
 
   /** Check all fields */
   checkAll() {
-    const inputs = this.formEl.querySelectorAll('input[data-answer]');
-    return Array.from(inputs).every(input => this.validate(input));
+    const textInputs = this.formEl.querySelectorAll('input[type="text"][data-answer]');
+    const textOk = Array.from(textInputs).every(input => this.validate(input));
+
+    const groups = this.formEl.querySelectorAll('[data-checkbox-group]');
+    const cbOk = Array.from(groups).every(g => this.validateCheckboxGroup(g));
+
+    return textOk && cbOk;
   }
 
   /** Enable the check button only when all fields are non-empty */
   toggleCheckButton() {
-    const inputs = this.formEl.querySelectorAll('input[data-answer]');
-    const allFilled = Array.from(inputs).every(input => input.value.trim() !== '');
-    this.btn.disabled = !allFilled;
+    const textInputs = this.formEl.querySelectorAll('input[type="text"][data-answer]');
+    const textFilled = Array.from(textInputs).every(input => input.value.trim() !== '');
+
+    const groups = this.formEl.querySelectorAll('[data-checkbox-group]');
+    const cbFilled = Array.from(groups).every(g => {
+      const boxes = g.querySelectorAll('input[type="checkbox"]');
+      return Array.from(boxes).some(b => b.checked);
+    });
+
+    this.btn.disabled = !(textFilled && cbFilled);
   }
 }
