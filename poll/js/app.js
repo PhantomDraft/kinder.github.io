@@ -79,7 +79,7 @@ function genAdvanced() {
   // 1) Next number
   const N = randInt(1, 98);
   t.push({
-    text: `Заполни пропуск: ${N}, _\u200b_\u200b_, ${N + 2}. Как называется число, которое идёт сразу после ${N}?\n___`,
+    text: `Укажи последующее ${N}.\n___`,
     dataAnswer: `${N + 1}`
   });
 
@@ -107,7 +107,7 @@ function genAdvanced() {
   // 5) Simple addition
   const V = randInt(0, 9), W = randInt(0, 9);
   t.push({
-    text: `Выполни: ${V} + ${W} = ?`,
+    text: `Сколько будет ${V} + ${W}?`,
     dataAnswer: `${V + W}`
   });
 
@@ -124,7 +124,7 @@ function genAdvanced() {
   const [C1, C2, C3] = [...set];
   const lo = Math.min(C1, C2, C3), hi = Math.max(C1, C2, C3);
   t.push({
-    text: `Даны числа: ${C1}, ${C2}, ${C3}.\nНаименьшее\n___\nНаибольшее\n___`,
+    text: `Даны числа: ${C1}, ${C2}, ${C3}. Укажите:\nНаименьшее\n___\nНаибольшее\n___`,
     dataAnswer: `${lo}; ${hi}`
   });
 
@@ -173,7 +173,7 @@ function genAdvanced() {
   const delta = 10 - I1;
   const I2 = delta + randInt(1, 8);
   t.push({
-    text: `Сколько будет ${I1} + ${I2}?\nЗапоминай: Доводим до 10: ___\nДалее: ___`,
+    text: `Сколько будет ${I1} + ${I2}?\nПриём «Доведение до 10»: ${I1} + ${I2} = (${I1}+${delta}) + (${I2}-${delta}).\nЗапоминай: Доводим до 10: ___\nДалее: ___`,
     dataAnswer: `${I1}+${delta}=10; +${I2 - delta}=${I1 + I2}`
   });
 
