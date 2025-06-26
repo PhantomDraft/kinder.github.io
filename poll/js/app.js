@@ -174,14 +174,16 @@ function genAdvanced() {
   const I2 = delta + randInt(1, 8);
   t.push({
     text: `Сколько будет ${I1} + ${I2}?\nПриём «Доведение до 10»: ${I1} + ${I2} = (${I1}+${delta}) + (${I2}-${delta}).\nЗапоминай: Доводим до 10: ___\nДалее: ___`,
-    dataAnswer: `${I1}+${delta}=10; +${I2 - delta}=${I1 + I2}`
+    dataAnswer: `${I1}+${delta}=10; +${I2 - delta}=${I1 + I2}`,
+    showPlaceholder: true
   });
 
   // 13) Odd one out in sequence
   const base = randInt(1, 10), step = randInt(1, 5);
   const seq = [0,1,2,3,4].map(i => base + i * step);
   const idx = randInt(0, 4);
-  const wrong = seq[idx] + step + 1;
+  let wrong = seq[idx] + step + 1;
+  while (seq.includes(wrong)) wrong++;
   seq[idx] = wrong;
   t.push({
     text: `В последовательности: ${seq.join(', ')} одно число выбивается. Найди лишнее.`,

@@ -90,7 +90,8 @@ export class Worksheet {
         input.className = 'form-control d-inline-block mx-1';
         input.style.width = 'auto';
         input.id = `${this.formEl.id}_${i}_${ansIdx}`;
-        input.placeholder = answers[ansIdx] || '';
+        input.setAttribute('data-answer', answers[ansIdx] || '');
+        input.placeholder = task.showPlaceholder ? (answers[ansIdx] || '') : '';
         if ((answers[ansIdx] || '').includes(':')) {
           new TimeMask(input).attach();
         } else if ((answers[ansIdx] || '').includes(',')) {
