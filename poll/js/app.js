@@ -45,7 +45,7 @@ function genStandard() {
   // 7) Subtract+add
   const H = randInt(20, 99), I = randInt(1, 9), J = randInt(1, 9);
   t.push({
-    text: `К разности двузначных чисел ${H} и ${I} прибавь ${J}.`,
+    text: `К разности чисел ${H} и ${I} прибавь ${J}.`,
     dataAnswer: `${H - I + J}`
   });
   // 8) Missing addend
