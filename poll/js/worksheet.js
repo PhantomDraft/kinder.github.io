@@ -27,67 +27,55 @@ export class Worksheet {
     });
   }
 
-  /** Renders tasks: [{text, dataAnswer, answerParts?}] */
+  /** Renders tasks: [{text, dataAnswer}] */
   load(tasks) {
     this.formEl.innerHTML = '';
-    tasks.forEach((task,i) => {
+    tasks.forEach((task, i) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'mb-3';
 
-      // label
       const label = document.createElement('label');
       label.className = 'form-label';
       label.htmlFor = `${this.formEl.id}_${i}`;
-      label.textContent = task.text;
+      label.textContent = `${i + 1}. ${task.text}`;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'form-control';
+      input.id = `${this.formEl.id}_${i}`;
+      input.setAttribute('data-answer', task.dataAnswer);
+      input.placeholder = 'Enter answer here';
+
+      // Attach masks
+      if (task.dataAnswer.includes(':')) {
+        new TimeMask(input).attach();
+      } else if (task.dataAnswer.includes(',')) {
+        new CommaMask(input).attach();
+      }
+
+      // Live validation
+      input.addEventListener('blur', () => this.validate(input));
+      // Enable/disable check button on each input change
+      input.addEventListener('input', () => this.toggleCheckButton());
+
+      const feedback = document.createElement('div');
+      feedback.className = 'invalid-feedback';
+      feedback.textContent = 'Incorrect answer';
+
       wrapper.append(label);
 
-      // 1) Checkbox widget
-      if (task.widget === 'checkbox') {
-        task.options.forEach(opt => {
-          const div = document.createElement('div');
-          div.className = 'form-check';
-          const inp = document.createElement('input');
-          inp.type = 'checkbox';
-          inp.className = 'form-check-input';
-          inp.value = opt;
-          inp.id = `${this.formEl.id}_${i}_opt_${opt}`;
-          div.append(inp, document.createTextNode(opt));
-          wrapper.append(div);
-          inp.addEventListener('change', () => this.toggleCheckButton());
-        });
-        this.formEl.append(wrapper);
-        return;
+      if (task.hint) {
+        const hint = document.createElement('div');
+        hint.className = 'form-text text-muted';
+        hint.textContent = task.hint;
+        wrapper.appendChild(hint);
       }
 
-      // 2) Inline blanks
-      if (task.answerParts) {
-        task.answerParts.forEach((part, idx) => {
-          if (part.beforeText) wrapper.append(document.createTextNode(part.beforeText));
-          const inp = document.createElement('input');
-          inp.type = 'text';
-          inp.className = 'form-control d-inline-block w-auto mx-1';
-          inp.setAttribute('data-answer', part.correct);
-          inp.placeholder = part.placeholder || '';
-          wrapper.append(inp);
-          inp.addEventListener('blur', () => this.validate(inp));
-          inp.addEventListener('input', () => this.toggleCheckButton());
-        });
-        this.formEl.append(wrapper);
-        return;
-      }
-
-      // 3) Single input
-      const inp = document.createElement('input');
-      inp.type='text';
-      inp.className='form-control';
-      inp.setAttribute('data-answer', task.dataAnswer);
-      wrapper.append(inp);
-      inp.addEventListener('blur',()=>this.validate(inp));
-      inp.addEventListener('input',()=>this.toggleCheckButton());
-
-      this.formEl.append(wrapper);
+      wrapper.append(input, feedback);
+      this.formEl.appendChild(wrapper);
     });
 
+    // After rendering, ensure button is disabled until fields are filled
     this.btn.disabled = true;
   }
 
