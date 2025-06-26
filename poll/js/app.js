@@ -71,142 +71,158 @@ function genStandard() {
 
 /**
  * Advanced-config generator for the “Дополнительно” screen
- * Returns an array of { text, dataAnswer, answerParts? } with appropriate random ranges
+ * Теперь возвращает { text, answerParts?, widget? }
  */
 function genAdvanced() {
   const t = [];
 
-  // 1) Next number
-  const N = randInt(1, 98);
-  t.push({
-    text: `Заполни пропуск: ${N}, ___, ${N + 2}. Как называется число, которое идёт сразу после ${N}?`,
-    dataAnswer: `${N + 1}`
-  });
+  // 1) Next number (inline blank)
+  {
+    const N = randInt(1, 98);
+    t.push({
+      text: `Заполни пропуск: ${N}, ___, ${N + 2}. Как называется число, которое идёт сразу после ${N}?`,
+      answerParts: [
+        { beforeText: '',          correct: `${N+1}`, placeholder: `${N+1}` }
+      ]
+    });
+  }
 
-  // 2) Previous number
-  const Q = randInt(2, 99);
-  t.push({
-    text: `Заполни пропуск: ___, ${Q}, ${Q + 1}. Какое число находится непосредственно перед ${Q}?`,
-    dataAnswer: `${Q - 1}`
-  });
+  // 2) Previous number (inline blank)
+  {
+    const Q = randInt(2, 99);
+    t.push({
+      text: `Заполни пропуск: ___, ${Q}, ${Q + 1}. Какое число находится непосредственно перед ${Q}?`,
+      answerParts: [
+        { beforeText: '',          correct: `${Q-1}`, placeholder: `${Q-1}` }
+      ]
+    });
+  }
 
-  // 3) Middle neighbor
-  const S = randInt(1, 98);
-  t.push({
-    text: `В последовательности: ${S}, ___, ${S + 2} – какое число должно стоять между ${S} и ${S + 2}?`,
-    dataAnswer: `${S + 1}`
-  });
+  // 3) Middle neighbor (inline blank)
+  {
+    const S = randInt(1, 98);
+    t.push({
+      text: `В последовательности: ${S}, ___, ${S + 2} – какое число должно стоять между ${S} и ${S + 2}?`,
+      answerParts: [
+        { beforeText: '',          correct: `${S+1}`, placeholder: `${S+1}` }
+      ]
+    });
+  }
 
-  // 4) Minimal three-digit number
+  // 4) Minimal three-digit (один ввод)
   t.push({
     text: `Наименьшее трёхзначное число.`,
     dataAnswer: `100`
   });
 
-  // 5) Simple addition
-  const V = randInt(0, 9), W = randInt(0, 9);
-  t.push({
-    text: `Выполни: ${V} + ${W} = ?`,
-    dataAnswer: `${V + W}`
-  });
+  // 5) Simple addition (один ввод)
+  {
+    const V = randInt(0,9), W = randInt(0,9);
+    t.push({
+      text: `Выполни: ${V} + ${W} = ?`,
+      dataAnswer: `${V+W}`
+    });
+  }
 
-  // 6) Series fill (next term)
-  const X1 = randInt(1, 20), Y1 = randInt(1, 5);
-  t.push({
-    text: `Последовательность: ${X1}, ___, ${X1 + 2 * Y1}, ___, ${X1 + 4 * Y1}. Какое число идёт после ${X1} при прибавлении ${Y1}?`,
-    dataAnswer: `${X1 + Y1}`
-  });
+  // 6) Series fill: поля прямо вместо "__"
+  {
+    const X1 = randInt(1,20), Y1 = randInt(1,5);
+    t.push({
+      text: `Заполни пропуски: ${X1}, ___, ${X1+2*Y1}, ___, ${X1+4*Y1}, если каждое число увеличивается на ${Y1}.`,
+      answerParts: [
+        { beforeText: '',          correct: `${X1+Y1}`,       placeholder: `${X1+Y1}` },
+        { beforeText: ', ',        correct: `${X1+3*Y1}`,     placeholder: `${X1+3*Y1}` }
+      ]
+    });
+  }
 
-  // 7) Compare three numbers (min/max) – split into two inputs
-  let set = new Set();
-  while (set.size < 3) set.add(randInt(1, 20));
-  const [C1, C2, C3] = [...set];
-  const lo = Math.min(C1, C2, C3), hi = Math.max(C1, C2, C3);
-  t.push({
-    text: `Даны числа: ${C1}, ${C2}, ${C3}. Какое из них наименьшее, а какое – наибольшее?`,
-    answerParts: [
-      { beforeText: 'Наименьшее – ', correct: `${lo}`, placeholder: `${lo}` },
-      { beforeText: ', наибольшее – ', correct: `${hi}`, placeholder: `${hi}` }
-    ]
-  });
+  // 7) Compare three numbers → два inline-поля, новый строкой
+  {
+    let set=new Set();
+    while(set.size<3) set.add(randInt(1,20));
+    const [C1,C2,C3]=[...set], lo=Math.min(C1,C2,C3), hi=Math.max(C1,C2,C3);
+    t.push({
+      text: `\nДаны числа: ${C1}, ${C2}, ${C3}.\nНаименьшее – ___\nНаибольшее – ___`,
+      answerParts: [
+        { beforeText: '',          correct: `${lo}`, placeholder: `${lo}` },
+        { beforeText: '',          correct: `${hi}`, placeholder: `${hi}` }
+      ]
+    });
+  }
 
-  // 8) Notebooks situational
-  const D1 = randInt(1, 10);
-  t.push({
-    text: `Купили ${D1} тетрадей в клетку, а в линейку – на 1 больше. Сколько тетрадей купили всего?`,
-    dataAnswer: `${D1 + (D1 + 1)}`
-  });
+  // 8) Notebooks situational (один ввод — без inline-полей)
+  {
+    const D1 = randInt(1,10);
+    t.push({
+      text: `Купили ${D1} тетрадей в клетку, а в линейку – на 1 больше. Сколько тетрадей купили всего?`,
+      dataAnswer: `${D1 + (D1+1)}`
+    });
+  }
 
-  // 9) Correct arithmetic sign
-  const E1 = randInt(1, 20), E2 = randInt(1, E1);
-  const sign = Math.random() < 0.5 ? '+' : '-';
-  const E3 = sign === '+' ? E1 + E2 : E1 - E2;
-  t.push({
-    text: `${E1} __ ${E2} = ${E3}. Какой знак (+ или –) нужно поставить?`,
-    dataAnswer: sign
-  });
+  // 9) Correct arithmetic sign (один ввод)
+  {
+    const E1=randInt(1,20), E2=randInt(1,E1);
+    const sign=Math.random()<.5?'+':'-';
+    const E3 = sign==='+'?E1+E2:E1-E2;
+    t.push({
+      text: `${E1} __ ${E2} = ${E3}. Какой знак (+ или –) нужно поставить?`,
+      dataAnswer: sign
+    });
+  }
 
-  // 10) Evenness check – split into number and explanation
-  const Fe = 2 * randInt(1, 9);
-  let Fo;
-  do { Fo = randInt(1, 19); } while (Fo % 2 === 0);
-  const F3 = randInt(1, 9) * 2;
-  t.push({
-    text: `Определи, какое из чисел ${Fe}, ${Fo}, ${F3} является чётным. Какой признак?`,
-    answerParts: [
-      { beforeText: '', correct: `${Fe}`, placeholder: `${Fe}` },
-      { beforeText: ' (признак: ', correct: 'оно делится на 2 без остатка', placeholder: 'делится на 2 без остатка', afterText: ')' }
-    ]
-  });
+  // 10) Odd one out → чекбоксы
+  {
+    const seq=[2,5,8,11,18]; // фиксируем для примера
+    t.push({
+      text: `В последовательности: ${seq.join(', ')} одно число выбивается. Найди лишнее и обоснуй.`,
+      widget: 'checkbox',            // переключаемся на чекбоксы
+      options: seq.map(n=>`${n}`),   // варианты
+      correct: [`18`]                // только 18 — правильный checkbox
+    });
+  }
 
-  // 11) Counting by steps – two inline blanks
-  const G1 = randInt(1, 10), H1 = randInt(1, 5);
-  t.push({
-    text: `Заполни пропуски: ${G1}, ___, ${G1 + 2 * H1}, ___, ${G1 + 4 * H1}, если каждое число увеличивается на ${H1}.`,
-    answerParts: [
-      { beforeText: '', correct: `${G1 + H1}`, placeholder: `${G1 + H1}` },
-      { beforeText: ', ', correct: `${G1 + 3 * H1}`, placeholder: `${G1 + 3 * H1}` }
-    ]
-  });
+  // 11) “More than” problem — убираем запись, только число
+  {
+    const L1=4, K2=2;
+    t.push({
+      text: `У Кати на ${K2} предмета больше, чем у Васи. Если у Васи ${L1}, сколько у Кати?`,
+      dataAnswer: `${L1+K2}`
+    });
+  }
 
-  // 12) Mental addition strategy – two inline parts
-  const I1 = randInt(1, 9);
-  const delta = 10 - (I1 % 10);
-  const I2 = delta + randInt(1, 8);
-  t.push({
-    text: `Как быстро вычислить сумму ${I1} + ${I2}, если сначала довести ${I1} до круглого числа? Опиши алгоритм.`,
-    answerParts: [
-      { beforeText: '', correct: `${I1}+${delta}=${I1 + delta}`, placeholder: `${I1}+${delta}=${I1 + delta}` },
-      { beforeText: ', затем +', correct: `${I2 - delta}=${I1 + I2}`, placeholder: `${I2 - delta}=${I1 + I2}` }
-    ]
-  });
+  // 12) Mental addition strategy — две строки и два inline-поля
+  {
+    const I1=2, I2=13;
+    const delta=10-(I1%10);
+    // first part: доведение до 10
+    // second part: остаток
+    t.push({
+      text: `\nЗапоминай:\nДоводим до 10: ___\nДалее: ___`,
+      answerParts: [
+        { beforeText:'', correct:`${I1+delta}`,   placeholder:`${I1+delta}` },
+        { beforeText:'', correct:`+${I2-delta}=${I1+I2}`, placeholder:`+${I2-delta}=${I1+I2}` }
+      ]
+    });
+  }
 
-  // 13) Odd one out – number and reasoning
-  const base = randInt(1, 10), step = randInt(1, 5);
-  const seq = [0, 1, 2, 3, 4].map(i => base + i * step);
-  const idx = randInt(0, 4);
-  const wrong = seq[idx] + step + 1;
-  seq[idx] = wrong;
-  t.push({
-    text: `В последовательности: ${seq.join(', ')} одно число выбивается. Найди лишнее и обоснуй.`,
-    answerParts: [
-      { beforeText: '', correct: `${wrong}`, placeholder: `${wrong}` },
-      { beforeText: ' (остальные с шагом ', correct: `${step}`, placeholder: `${step}`, afterText: ')' }
-    ]
-  });
+  // 13) Evenness check → чекбоксы без объяснения
+  {
+    const nums=[18,7,4];
+    t.push({
+      text: `Какое из чисел ${nums.join(', ')} чётное? Отметь правильный вариант.`,
+      widget:'checkbox',
+      options: nums.map(n=>`${n}`),
+      correct: [`18`,`4`]  // оба чётные
+    });
+  }
 
-  // 14) Compare figures
-  t.push({
-    text: `Сравни и поставь верный знак (меньше или больше): треугольник (3 стороны) __ прямоугольник (4 стороны).`,
-    dataAnswer: `<`
-  });
-
-  // 15) “More than” problem
-  const L1 = randInt(1, 10), K2 = randInt(1, 9);
-  t.push({
-    text: `У Кати на ${K2} предмета больше, чем у Васи. Если у Васи ${L1}, сколько у Кати? Как записать?`,
-    dataAnswer: `${L1 + K2}; ${L1}+${K2}=${L1 + K2}`
-  });
+  // 14) More tasks (например Compare figures) — оставляем без изменений
+  {
+    t.push({
+      text: `Сравни: треугольник (3) __ прямоугольник (4).`,
+      dataAnswer: '<'
+    });
+  }
 
   return t;
 }
