@@ -169,17 +169,7 @@ function genAdvanced() {
     dataAnswer: `${G1 + H1}, ${G1 + 3 * H1}`
   });
 
-  // 12) Mental addition strategy
-  const I1 = randInt(1, 9);
-  const delta = 10 - I1;
-  const I2 = delta + randInt(1, 8);
-  t.push({
-    text: `Сколько будет ${I1} + ${I2}?\nПриём «Доведение до 10»: ${I1} + ${I2} = (${I1}+${delta}) + (${I2}-${delta}).\nЗапоминай: Доводим до 10: ___\nДалее: ___`,
-    dataAnswer: `${I1}+${delta}=10; +${I2 - delta}=${I1 + I2}`,
-    showPlaceholder: true
-  });
-
-  // 13) Odd one out in sequence
+  // 12) Odd one out in sequence
   const base = randInt(1, 10), step = randInt(1, 5);
   const seq = [0,1,2,3,4].map(i => base + i * step);
   const idx = randInt(0, 4);
@@ -191,14 +181,14 @@ function genAdvanced() {
     options: seq.map(n => ({ text: `${n}`, correct: n === wrong }))
   });
 
-  // 14) Compare figures
+  // 13) Compare figures
   t.push({
-    text: `Сравни и поставь верный знак (меньше или больше): треугольник (3 стороны) __ прямоугольник (4 стороны).`,
+    text: `Треугольник (3 стороны) __ прямоугольник (4 стороны). Сравни и поставь верный знак (меньше или больше):`,
     dataAnswer: `<`,
     signs: ['<', '>']
   });
 
-  // 15) “More than” problem
+  // 14) “More than” problem
   const L1 = randInt(1, 10), K2 = randInt(1, 9);
   t.push({
     text: `У Кати на ${K2} предмета больше, чем у Васи. Если у Васи ${L1}, сколько у Кати?`,

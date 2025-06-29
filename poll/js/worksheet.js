@@ -73,6 +73,11 @@ export class Worksheet {
         feedback.textContent = 'Incorrect answer';
         wrapper.appendChild(feedback);
         this.formEl.appendChild(wrapper);
+        if (i < tasks.length - 1) {
+          const hr = document.createElement('hr');
+          hr.className = 'my-4';
+          this.formEl.appendChild(hr);
+        }
         return;
       }
 
@@ -171,6 +176,11 @@ export class Worksheet {
       feedback.textContent = 'Incorrect answer';
       wrapper.appendChild(feedback);
       this.formEl.appendChild(wrapper);
+      if (i < tasks.length - 1) {
+        const hr = document.createElement('hr');
+        hr.className = 'my-4';
+        this.formEl.appendChild(hr);
+      }
     });
 
     this.btn.disabled = true;
@@ -178,29 +188,45 @@ export class Worksheet {
 
   validateCheckboxGroup(wrapper) {
     const boxes = wrapper.querySelectorAll('input[type="checkbox"]');
-    let ok = true;
 
-    // First pass: figure out overall correctness
+    let incorrectSelected = false;
+    let anyChecked = false;
+    let correctCount = 0;
+    let checkedCorrect = 0;
+
     boxes.forEach(box => {
       const shouldBeChecked = box.dataset.correct === 'true';
-      if (box.checked !== shouldBeChecked) ok = false;
-    });
-
-    // Second pass: style each box only if they actually clicked it
-    boxes.forEach(box => {
-      const shouldBeChecked = box.dataset.correct === 'true';
-      // correct & checked → green, incorrect & checked → red
+      if (shouldBeChecked) correctCount++;
+      if (box.checked) {
+        anyChecked = true;
+        if (shouldBeChecked) checkedCorrect++;
+        else incorrectSelected = true;
+      }
       box.classList.toggle('is-valid', box.checked && shouldBeChecked);
       box.classList.toggle('is-invalid', box.checked && !shouldBeChecked);
     });
 
-    // show or hide the “Incorrect answer” message
     const feedback = wrapper.querySelector('.invalid-feedback');
     if (feedback) {
-      feedback.style.display = ok ? 'none' : 'block';
+      feedback.classList.remove('text-warning', 'text-success', 'text-danger');
+      if (incorrectSelected) {
+        feedback.textContent = 'Incorrect answer';
+        feedback.classList.add('text-danger');
+        feedback.style.display = 'block';
+      } else if (anyChecked && checkedCorrect < correctCount) {
+        feedback.textContent = 'Продолжайте!';
+        feedback.classList.add('text-warning');
+        feedback.style.display = 'block';
+      } else if (checkedCorrect === correctCount && correctCount > 0) {
+        feedback.textContent = 'Все верно!';
+        feedback.classList.add('text-success');
+        feedback.style.display = 'block';
+      } else {
+        feedback.style.display = 'none';
+      }
     }
 
-    return ok;
+    return checkedCorrect === correctCount && !incorrectSelected && correctCount > 0;
   }
 
   /** Validate single input */
