@@ -114,8 +114,7 @@ ___`,
 		const D1 = Utils.randInt(1, 10);
 		t.push({
 			text: `Купили ${D1} тетрадей в клетку, а в линейку – на 1 больше. Сколько тетрадей купили всего?`,
-			dataAnswer: `${D1 + (D1 + 1)}`,
-			hint: `Пример записи: наименьшее – 2; наибольшее – 18`
+			dataAnswer: `${D1 + (D1 + 1)}`
 		});
 		const E1 = Utils.randInt(1, 20), E2 = Utils.randInt(1, E1);
 		const sign = Math.random() < 0.5 ? '+' : '-';
