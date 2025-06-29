@@ -122,6 +122,7 @@ export class Worksheet {
               input.value = s;
               input.dispatchEvent(new Event('input'));
               input.focus();
+              this.validate(input);
             });
             container.appendChild(btn);
           });
