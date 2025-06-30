@@ -28,12 +28,24 @@ export class Worksheet {
 		});
 	}
 
-	/** Renders tasks: [{text, dataAnswer, options}] */
-	load(tasks) {
-		this.formEl.innerHTML = '';
-		tasks.forEach((task, i) => {
-			const wrapper = document.createElement('div');
-			wrapper.className = 'mb-3';
+        /** Renders tasks: [{text, dataAnswer, options}] */
+        load(tasks) {
+                if (!Array.isArray(tasks)) {
+                        console.error('Worksheet.load: expected array of tasks', tasks);
+                        return;
+                }
+
+                this.formEl.innerHTML = '';
+
+                let loadedCount = 0;
+
+                tasks.forEach((task, i) => {
+                        if (!task || typeof task.text !== 'string' || task.text.trim() === '') {
+                                console.error(`Task #${i + 1} is missing text and was skipped`, task);
+                                return;
+                        }
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'mb-3';
 
 			// ----- Checkbox style -----
 			if (task.options) {
@@ -181,16 +193,18 @@ export class Worksheet {
 			feedback.className = 'invalid-feedback';
 			feedback.textContent = 'Incorrect answer';
 			wrapper.appendChild(feedback);
-			this.formEl.appendChild(wrapper);
-			if (i < tasks.length - 1) {
-				const hr = document.createElement('hr');
-				hr.className = 'my-4';
-				this.formEl.appendChild(hr);
-			}
-		});
+                        this.formEl.appendChild(wrapper);
+                        loadedCount++;
+                        if (i < tasks.length - 1) {
+                                const hr = document.createElement('hr');
+                                hr.className = 'my-4';
+                                this.formEl.appendChild(hr);
+                        }
+                });
 
-		this.btn.disabled = true;
-	}
+                console.log(`Worksheet loaded ${loadedCount} tasks`);
+                this.btn.disabled = true;
+        }
 
 	validateCheckboxGroup(wrapper) {
 		const boxes = wrapper.querySelectorAll('input[type="checkbox"]');

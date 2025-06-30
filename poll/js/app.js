@@ -74,17 +74,17 @@ ___`,
 			dataAnswer: `${N + 1}`
 		});
 		const Q = Utils.randInt(2, 99);
-		t.push({
-			text: `Заполните пропуск: ___, ${Q}, ${Q + 1}. Какое число находится непосредственно перед ${Q}?
+               t.push({
+                       text: `Заполните пропуск: ___, ${Q}, ${Q + 1}. Какое число находится непосредственно перед ${Q}?
 ___`,
-			dataAnswer: `${Q - 1}`
-		});
-		const S = Utils.randInt(1, 98);
-		t.push({
-			text: `В последовательности: ${S}, ___, ${S + 2} – какое число должно стоять между ${S} и ${S + 2}?
+                       dataAnswer: `${Q - 1}; ${Q - 1}`
+               });
+               const S = Utils.randInt(1, 98);
+               t.push({
+                       text: `В последовательности: ${S}, ___, ${S + 2} – какое число должно стоять между ${S} и ${S + 2}?
 ___`,
-			dataAnswer: `${S + 1}`
-		});
+                       dataAnswer: `${S + 1}; ${S + 1}`
+               });
 		t.push({
 			text: `Наименьшее трёхзначное число.`,
 			dataAnswer: `100`
@@ -139,11 +139,11 @@ ___`,
 			]
 		});
 		const G1 = Utils.randInt(1, 10), H1 = Utils.randInt(1, 5);
-		t.push({
-			text: `Заполните пропуски: ${G1}, ___, ${G1 + 2 * H1}, ___, ${G1 + 4 * H1}, если каждое число увеличивается на ${H1}.
+               t.push({
+                       text: `Заполните пропуски: ${G1}, ___, ${G1 + 2 * H1}, ___, ${G1 + 4 * H1}, если каждое число увеличивается на ${H1}.
 ___, ___`,
-			dataAnswer: `${G1 + H1}, ${G1 + 3 * H1}`
-		});
+                       dataAnswer: `${G1 + H1}; ${G1 + 3 * H1}; ${G1 + H1}; ${G1 + 3 * H1}`
+               });
 		const base = Utils.randInt(1, 10), step = Utils.randInt(1, 5);
 		const seq = [0,1,2,3,4].map(i => base + i * step);
 		const idx = Utils.randInt(0, 4);
@@ -192,34 +192,37 @@ class App {
 		const f = e.target.files[0];
 		if (!f) return alert('Файл не выбран.');
 		const r = new FileReader();
-		r.onload = ev => {
-			try {
-				const cfg = JSON.parse(ev.target.result);
-				if (!cfg.standard || !cfg.advanced) {
-					return alert('Неверный формат конфигурации.');
-				}
-				Utils.shuffle(cfg.standard);
-				Utils.shuffle(cfg.advanced);
-				this.standardSheet.load(cfg.standard);
-				this.advancedSheet.load(cfg.advanced);
-				alert('Конфигурация загружена.');
-			} catch (err) {
-				alert('Ошибка при разборе JSON: ' + err.message);
-			}
-		};
+                r.onload = ev => {
+                        try {
+                                const cfg = JSON.parse(ev.target.result);
+                                if (!cfg.standard || !cfg.advanced) {
+                                        return alert('Неверный формат конфигурации.');
+                                }
+                                console.log('Loaded configuration', cfg);
+                                Utils.shuffle(cfg.standard);
+                                Utils.shuffle(cfg.advanced);
+                                this.standardSheet.load(cfg.standard);
+                                this.advancedSheet.load(cfg.advanced);
+                                alert('Конфигурация загружена.');
+                        } catch (err) {
+                                console.error('Ошибка при разборе JSON', err);
+                                alert('Ошибка при разборе JSON: ' + err.message);
+                        }
+                };
 		r.readAsText(f);
 	}
 
-	loadDefault() {
-		const std = this.generator.generateStandard();
-		const adv = this.generator.generateAdvanced();
-		Utils.shuffle(std);
-		Utils.shuffle(adv);
-		this.standardSheet.load(std);
-		this.advancedSheet.load(adv);
-		document.getElementById('standard-tab').click();
-		alert('Загружена стандартная конфигурация. Сначала решите и проверьте её.');
-	}
+        loadDefault() {
+                const std = this.generator.generateStandard();
+                const adv = this.generator.generateAdvanced();
+                Utils.shuffle(std);
+                Utils.shuffle(adv);
+                console.log('Loaded default configuration', { standard: std.length, advanced: adv.length });
+                this.standardSheet.load(std);
+                this.advancedSheet.load(adv);
+                document.getElementById('standard-tab').click();
+                alert('Загружена стандартная конфигурация. Сначала решите и проверьте её.');
+        }
 }
 
 document.addEventListener('DOMContentLoaded', () => new App());
