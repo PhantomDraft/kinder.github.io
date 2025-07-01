@@ -44,6 +44,7 @@ export class Worksheet {
                                 console.error(`Task #${i + 1} is missing text and was skipped`, task);
                                 return;
                         }
+                        loadedCount++; // count every successfully processed task
                         const wrapper = document.createElement('div');
                         wrapper.className = 'mb-3';
 
@@ -194,7 +195,6 @@ export class Worksheet {
 			feedback.textContent = 'Incorrect answer';
 			wrapper.appendChild(feedback);
                         this.formEl.appendChild(wrapper);
-                        loadedCount++;
                         if (i < tasks.length - 1) {
                                 const hr = document.createElement('hr');
                                 hr.className = 'my-4';
